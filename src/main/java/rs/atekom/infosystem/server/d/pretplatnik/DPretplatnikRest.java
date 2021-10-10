@@ -1,0 +1,164 @@
+package rs.atekom.infosystem.server.d.pretplatnik;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import javax.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import rs.atekom.infosystem.baza.d.DPodaciZaPretplatnikaOdgovor;
+import rs.atekom.infosystem.baza.d.DPretplatnik;
+import rs.atekom.infosystem.baza.d.DPretplatnikOdgovor;
+import rs.atekom.infosystem.baza.d.DPretplatnikPodaciOdgovor;
+import rs.atekom.infosystem.baza.e.EOrganizacija;
+import rs.atekom.infosystem.baza.i.IAdresa;
+import rs.atekom.infosystem.server.OsnovniRest;
+import rs.atekom.infosystem.server.e.organizacija.EOrganizacijaRepo;
+import rs.atekom.infosystem.server.i.adresa.IAdresaRepo;
+
+@RestController
+@Validated
+public class DPretplatnikRest extends OsnovniRest{
+
+	@Autowired
+	DPretplatnikRepo repo;
+	@Autowired
+	DPretplatnikService service;
+	@Autowired
+	EOrganizacijaRepo repoOrganizacija;
+	@Autowired
+	IAdresaRepo repoAdresa;
+	
+	@GetMapping("/pretplatnici")
+	public ResponseEntity<DPretplatnikOdgovor> pretraga(@RequestParam(value = "pretraga") Optional<String> pretraga, 
+			@RequestParam(value = "agencijaId") Optional<Long> agencijaId){
+		try {
+			return new ResponseEntity<DPretplatnikOdgovor>(service.lista(pretraga, agencijaId), HttpStatus.ACCEPTED);
+			}catch (Exception e) {
+				e.printStackTrace();
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+				}
+		}
+	
+	@GetMapping("/pretplatnici/podaci")
+	public ResponseEntity<DPodaciZaPretplatnikaOdgovor> podaci(){
+		try {
+			return new ResponseEntity<DPodaciZaPretplatnikaOdgovor>(service.podaciZaPretplatnika(), HttpStatus.ACCEPTED);
+			}catch (Exception e) {
+				e.printStackTrace();
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+				}
+		}
+	
+	@PutMapping("/pretplatnik/snimi")
+	@Transactional
+	public ResponseEntity<DPretplatnikOdgovor> snimiIzmeni(@RequestBody DPretplatnikPodaciOdgovor noviPretplatnik){
+		List<DPretplatnik> lista = new ArrayList<DPretplatnik>();
+		lista.addAll(repo.pretragaSvih(noviPretplatnik.getPretplatnik().getMb()));
+		if(repo.pretragaSvih(noviPretplatnik.getPretplatnik().getPib()) != null && repo.pretragaSvih(noviPretplatnik.getPretplatnik().getPib()).size() >0) {
+			for(DPretplatnik pretpl : repo.pretragaSvih(noviPretplatnik.getPretplatnik().getPib())) {
+				if(!lista.contains(pretpl)) {
+					lista.add(pretpl);
+					}
+				}
+			}
+		try {
+			return repo.findById(noviPretplatnik.getPretplatnik().getId())
+					.map(pretplatnik -> {
+						if(lista.size() == 1 && lista.get(0).getId().equals(noviPretplatnik.getPretplatnik().getId())) {
+							pretplatnik = noviPretplatnik.getPretplatnik();
+							IAdresa adresa = noviPretplatnik.getOrganizacija().getAdresa();
+							EOrganizacija organizacija = noviPretplatnik.getOrganizacija();
+							
+							organizacija.setPretplatnik(repo.save(pretplatnik));
+							organizacija.setAdresa(adresa);
+							repoOrganizacija.save(organizacija);
+							
+							return new ResponseEntity<DPretplatnikOdgovor>(service.lista(null, null), HttpStatus.ACCEPTED);
+							}else {
+								return new ResponseEntity<DPretplatnikOdgovor>(new DPretplatnikOdgovor(), HttpStatus.ALREADY_REPORTED);
+								}
+						})
+					.orElseGet(() -> {
+						if(lista.size() < 1) {
+							DPretplatnik pretplatnik = noviPretplatnik.getPretplatnik();
+							EOrganizacija organizacija = noviPretplatnik.getOrganizacija();
+							IAdresa adresa = organizacija.getAdresa();
+							
+							pretplatnik.setId(null);
+							pretplatnik.setIzbrisan(false);
+							adresa.setId(null);
+							adresa.setIzbrisan(false);
+							
+							organizacija.setId(null);
+							organizacija.setIzbrisan(false);
+							organizacija.setSediste(true);
+							pretplatnik = repo.save(pretplatnik);
+							organizacija.setPretplatnik(pretplatnik);
+							adresa.setPretplatnik(pretplatnik);
+							organizacija.setAdresa(repoAdresa.save(adresa));
+							repoOrganizacija.save(organizacija);
+							
+							return new ResponseEntity<DPretplatnikOdgovor>(service.lista(null, null), HttpStatus.ACCEPTED);
+							}else {
+								return new ResponseEntity<DPretplatnikOdgovor>(new DPretplatnikOdgovor(), HttpStatus.ALREADY_REPORTED);
+								}
+						});
+			}catch (Exception e) {
+				e.printStackTrace();
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+				}
+		}
+	
+	@DeleteMapping("/pretplatnik/brisi/{id}")
+	@Transactional
+	public ResponseEntity<DPretplatnikOdgovor>  brisi(@PathVariable Long id){
+		DPretplatnik pretplatnik = repo.findById(id).get();
+		if(pretplatnik != null) {
+			List<EOrganizacija> organizacije = repoOrganizacija.findByPretplatnik(pretplatnik);
+			List<IAdresa> adrese = new ArrayList<IAdresa>();
+			for(EOrganizacija org : organizacije) {
+				adrese.add(org.getAdresa());
+				}
+			try {
+				repoOrganizacija.deleteAll(organizacije);
+				repoAdresa.deleteAll(adrese);
+				repo.delete(pretplatnik);
+				return new ResponseEntity<DPretplatnikOdgovor>(service.lista(null, null), HttpStatus.ACCEPTED);
+				}catch (Exception e) {
+					try {
+						repoOrganizacija.deleteAll(organizacije);
+						repoAdresa.deleteAll(adrese);
+						pretplatnik.setIzbrisan(true);
+						repo.save(pretplatnik);
+						return new ResponseEntity<DPretplatnikOdgovor>(service.lista(null, null), HttpStatus.ACCEPTED);
+						}catch (Exception ee) {
+							pretplatnik.setIzbrisan(true);
+							for(EOrganizacija org : organizacije) {
+								org.setIzbrisan(true);
+								repoOrganizacija.save(org);
+								}
+							for(IAdresa adr : adrese) {
+								adr.setIzbrisan(true);
+								repoAdresa.save(adr);
+								}
+							ee.printStackTrace();
+							return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+							}
+					}
+			}else {
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+				}
+		}
+	
+	}
