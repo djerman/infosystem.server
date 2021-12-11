@@ -52,7 +52,7 @@ public class BOpstinaRest extends OsnovniRest{
 	@GetMapping("/opstine/pretraga")
 	public ResponseEntity<BOpstinaOdgovor> pretraga(@RequestParam(value = "pretraga") Optional<String> pretraga){
 		try {
-			return new ResponseEntity<BOpstinaOdgovor>(service.lista(pretraga), HttpStatus.ACCEPTED);
+			return new ResponseEntity<BOpstinaOdgovor>(service.pretraga(pretraga), HttpStatus.ACCEPTED);
 			}catch (Exception e) {
 				e.printStackTrace();
 				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -65,13 +65,21 @@ public class BOpstinaRest extends OsnovniRest{
 		try {
 			return repo.findById(novaOpstina.getId())
 					.map(opstina -> {
-						opstina = novaOpstina;
-						return new ResponseEntity<BOpstinaOdgovor>(service.lista(repo.save(opstina).getDrzava().getId()), HttpStatus.ACCEPTED);
-					})
+						if(opstina.getVerzija() == novaOpstina.getVerzija()) {
+							opstina = novaOpstina;
+							repo.save(opstina);
+							//return new ResponseEntity<BOpstinaOdgovor>(service.lista(repo.save(opstina).getDrzava().getId()), HttpStatus.ACCEPTED);
+							return new ResponseEntity<BOpstinaOdgovor>(service.pretraga(null), HttpStatus.ACCEPTED);
+							}else {
+								return new ResponseEntity<BOpstinaOdgovor>(HttpStatus.ALREADY_REPORTED);
+								}
+						})
 					.orElseGet(() -> {
 						novaOpstina.setId(null);
 						novaOpstina.setIzbrisan(false);
-						return new ResponseEntity<BOpstinaOdgovor>(service.lista(repo.save(novaOpstina).getDrzava().getId()), HttpStatus.ACCEPTED);
+						novaOpstina.setVerzija(0);
+						repo.save(novaOpstina);
+						return new ResponseEntity<BOpstinaOdgovor>(service.pretraga(null), HttpStatus.ACCEPTED);
 					});
 			}catch (Exception e) {
 				e.printStackTrace();

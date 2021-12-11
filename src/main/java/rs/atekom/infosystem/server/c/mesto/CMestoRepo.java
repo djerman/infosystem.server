@@ -20,10 +20,12 @@ public interface CMestoRepo extends PagingAndSortingRepository<CMesto, Long> {
 	
 	@Query(value = "SELECT m FROM CMesto AS m"
 			+ " WHERE m.izbrisan='0'"
-			+ " AND (:pretraga IS NULL OR (m.naziv IS NULL OR lower(m.naziv) like lower(concat('%',pretraga,'%')))"
+			+ " AND (:pretraga IS NULL OR ((m.naziv IS NULL OR lower(m.naziv) like lower(concat('%',:pretraga,'%')))"
 			+ " OR (m.sr IS NULL OR lower(m.sr) like lower(concat('%',:pretraga,'%')))"
-			+ " OR (m.en IS NULL OR lower(m.en) like lower(concat('%',:pretraga,'%')))"
+			+ " OR (m.en IS NULL OR lower(m.en) like lower(concat('%',:pretraga,'%'))))"
 			+ ")"
 			+ " ORDER BY m.naziv ASC")
 	public List<CMesto> pretraga(@Param("pretraga") String pretraga);
+	
+	public List<CMesto> findByIzbrisanFalseOrderByNazivAsc();
 	}

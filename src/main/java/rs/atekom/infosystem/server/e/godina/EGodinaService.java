@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import rs.atekom.infosystem.baza.d.DPretplatnik;
+import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnik;
 import rs.atekom.infosystem.baza.e.godina.EGodina;
 import rs.atekom.infosystem.baza.e.godina.EGodinaOdgovor;
 import rs.atekom.infosystem.server.d.pretplatnik.DPretplatnikRepo;

@@ -59,13 +59,37 @@ public class ADrzavaRest extends OsnovniRest{
 		try {
 			return repo.findById(novaDrzava.getId())
 					.map(drzava -> {
-						drzava = novaDrzava;
-						repo.save(drzava);
-						return new ResponseEntity<ADrzavaOdgovor>(service.lista(null), HttpStatus.ACCEPTED);
+						if(drzava.getVerzija() == novaDrzava.getVerzija()) {
+							if(novaDrzava.getSr() == null || novaDrzava.getSr().equals("")) {
+								novaDrzava.setSr(novaDrzava.getNaziv());
+								}
+							if(novaDrzava.getEn() == null || novaDrzava.getEn().equals("")) {
+								novaDrzava.setEn(novaDrzava.getNaziv());
+								}
+							if(novaDrzava.getDe() == null || novaDrzava.getDe().equals("")) {
+								novaDrzava.setSr(novaDrzava.getNaziv());
+								}
+							novaDrzava.setVerzija(novaDrzava.getVerzija() + 1);
+							drzava = novaDrzava;
+							repo.save(drzava);
+							return new ResponseEntity<ADrzavaOdgovor>(service.lista(null), HttpStatus.ACCEPTED);
+							}else {
+								return new ResponseEntity<ADrzavaOdgovor>(HttpStatus.ALREADY_REPORTED);
+								}
 						})
 					.orElseGet(() -> {
 						novaDrzava.setId(null);
 						novaDrzava.setIzbrisan(false);
+						novaDrzava.setVerzija(0);
+						if(novaDrzava.getSr() == null || novaDrzava.getSr().equals("")) {
+							novaDrzava.setSr(novaDrzava.getNaziv());
+							}
+						if(novaDrzava.getEn() == null || novaDrzava.getEn().equals("")) {
+							novaDrzava.setEn(novaDrzava.getNaziv());
+							}
+						if(novaDrzava.getDe() == null || novaDrzava.getDe().equals("")) {
+							novaDrzava.setSr(novaDrzava.getNaziv());
+							}
 						repo.save(novaDrzava);
 						return new ResponseEntity<ADrzavaOdgovor>(service.lista(null), HttpStatus.ACCEPTED);
 						});

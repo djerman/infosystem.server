@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-import rs.atekom.infosystem.baza.d.DPretplatnik;
+import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnik;
 import rs.atekom.infosystem.baza.e.EOrganizacija;
 
 @Repository

@@ -7,6 +7,9 @@ import rs.atekom.infosystem.baza.i.IAdresa;
 
 public interface IAdresaRepo extends PagingAndSortingRepository<IAdresa, Long>{
 
-	List<IAdresa> findByPartner(GPartner partner);
+	public List<IAdresa> findByPartnerAndIzbrisanFalse(GPartner partner);
+	
+	public IAdresa findTopByPartnerAndSedisteTrueAndIzbrisanFalse(GPartner partner);
 
+	public List<IAdresa> findByPartnerAndIzbrisanFalseAndSedisteFalse(GPartner partner);
 	}

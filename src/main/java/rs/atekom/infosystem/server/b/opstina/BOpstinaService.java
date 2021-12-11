@@ -29,7 +29,7 @@ public class BOpstinaService extends OsnovniService{
 		return odgovor;
 		}
 	
-	public BOpstinaOdgovor lista(Optional<String> pretraga) {
+	public BOpstinaOdgovor pretraga(Optional<String> pretraga) {
 		BOpstinaOdgovor odgovor = new BOpstinaOdgovor();
 		try {
 			String pojam = null;

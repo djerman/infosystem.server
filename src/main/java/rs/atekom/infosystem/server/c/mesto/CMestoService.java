@@ -50,8 +50,8 @@ public class CMestoService extends OsnovniService{
 			String pojam = null;
 			if(pretraga != null && pretraga.isPresent()) {
 				pojam = pretraga.get();
-				odgovor.setLista(repo.pretraga(pojam));
 				}
+			odgovor.setLista(repo.pretraga(pojam));
 			}catch (Exception e) {
 				e.printStackTrace();
 				}

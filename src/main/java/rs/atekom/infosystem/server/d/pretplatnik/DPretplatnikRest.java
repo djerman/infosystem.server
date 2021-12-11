@@ -15,11 +15,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import rs.atekom.infosystem.baza.d.DPodaciZaPretplatnikaOdgovor;
-import rs.atekom.infosystem.baza.d.DPretplatnik;
-import rs.atekom.infosystem.baza.d.DPretplatnikOdgovor;
-import rs.atekom.infosystem.baza.d.DPretplatnikPodaciOdgovor;
+import rs.atekom.infosystem.baza.d.pretplatnik.DPodaciZaPretplatnikaOdgovor;
+import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnik;
+import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikOdgovor;
+import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikPodaciOdgovor;
 import rs.atekom.infosystem.baza.e.EOrganizacija;
 import rs.atekom.infosystem.baza.i.IAdresa;
 import rs.atekom.infosystem.server.OsnovniRest;
@@ -40,6 +39,7 @@ public class DPretplatnikRest extends OsnovniRest{
 	IAdresaRepo repoAdresa;
 	
 	@GetMapping("/pretplatnici")
+	//@PreAuthorize("")
 	public ResponseEntity<DPretplatnikOdgovor> pretraga(@RequestParam(value = "pretraga") Optional<String> pretraga, 
 			@RequestParam(value = "agencijaId") Optional<Long> agencijaId){
 		try {
@@ -65,7 +65,7 @@ public class DPretplatnikRest extends OsnovniRest{
 	public ResponseEntity<DPretplatnikOdgovor> snimiIzmeni(@RequestBody DPretplatnikPodaciOdgovor noviPretplatnik){
 		List<DPretplatnik> lista = new ArrayList<DPretplatnik>();
 		lista.addAll(repo.pretragaSvih(noviPretplatnik.getPretplatnik().getMb()));
-		if(repo.pretragaSvih(noviPretplatnik.getPretplatnik().getPib()) != null && repo.pretragaSvih(noviPretplatnik.getPretplatnik().getPib()).size() >0) {
+		if(repo.pretragaSvih(noviPretplatnik.getPretplatnik().getPib()) != null && repo.pretragaSvih(noviPretplatnik.getPretplatnik().getPib()).size() > 0) {
 			for(DPretplatnik pretpl : repo.pretragaSvih(noviPretplatnik.getPretplatnik().getPib())) {
 				if(!lista.contains(pretpl)) {
 					lista.add(pretpl);
@@ -73,18 +73,27 @@ public class DPretplatnikRest extends OsnovniRest{
 				}
 			}
 		try {
-			return repo.findById(noviPretplatnik.getPretplatnik().getId())
+			return repo.findById(noviPretplatnik.getPretplatnik().getId() == null ? 0L : noviPretplatnik.getPretplatnik().getId())
 					.map(pretplatnik -> {
 						if(lista.size() == 1 && lista.get(0).getId().equals(noviPretplatnik.getPretplatnik().getId())) {
-							pretplatnik = noviPretplatnik.getPretplatnik();
-							IAdresa adresa = noviPretplatnik.getOrganizacija().getAdresa();
-							EOrganizacija organizacija = noviPretplatnik.getOrganizacija();
-							
-							organizacija.setPretplatnik(repo.save(pretplatnik));
-							organizacija.setAdresa(adresa);
-							repoOrganizacija.save(organizacija);
-							
-							return new ResponseEntity<DPretplatnikOdgovor>(service.lista(null, null), HttpStatus.ACCEPTED);
+							if(pretplatnik.getVerzija().equals(noviPretplatnik.getPretplatnik().getVerzija())) {
+								pretplatnik = noviPretplatnik.getPretplatnik();
+								pretplatnik.setVerzija(pretplatnik.getVerzija() + 1);
+								pretplatnik = service.sacuvajPretplatnika(pretplatnik);
+								
+								IAdresa adresa = noviPretplatnik.getOrganizacija().getAdresa();
+								adresa.setVerzija(pretplatnik.getVerzija());
+								adresa = repoAdresa.save(adresa);
+								
+								EOrganizacija organizacija = noviPretplatnik.getOrganizacija();
+								organizacija.setVerzija(pretplatnik.getVerzija());
+								organizacija.setAdresa(adresa);
+								organizacija = repoOrganizacija.save(organizacija);
+								
+								return new ResponseEntity<DPretplatnikOdgovor>(service.lista(null, null), HttpStatus.ACCEPTED);
+								}else {
+									return new ResponseEntity<DPretplatnikOdgovor>(HttpStatus.MULTI_STATUS);
+									}
 							}else {
 								return new ResponseEntity<DPretplatnikOdgovor>(new DPretplatnikOdgovor(), HttpStatus.ALREADY_REPORTED);
 								}
@@ -95,17 +104,19 @@ public class DPretplatnikRest extends OsnovniRest{
 							EOrganizacija organizacija = noviPretplatnik.getOrganizacija();
 							IAdresa adresa = organizacija.getAdresa();
 							
-							pretplatnik.setId(null);
 							pretplatnik.setIzbrisan(false);
-							adresa.setId(null);
-							adresa.setIzbrisan(false);
+							pretplatnik.setVerzija(0);
+							pretplatnik = service.sacuvajPretplatnika(pretplatnik);
 							
-							organizacija.setId(null);
+							adresa.setPretplatnik(pretplatnik);
+							adresa.setIzbrisan(false);
+							adresa.setVerzija(0);
+							
+							organizacija.setPretplatnik(pretplatnik);
 							organizacija.setIzbrisan(false);
 							organizacija.setSediste(true);
-							pretplatnik = repo.save(pretplatnik);
-							organizacija.setPretplatnik(pretplatnik);
-							adresa.setPretplatnik(pretplatnik);
+							organizacija.setVerzija(0);
+							
 							organizacija.setAdresa(repoAdresa.save(adresa));
 							repoOrganizacija.save(organizacija);
 							

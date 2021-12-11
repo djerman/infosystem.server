@@ -80,26 +80,53 @@ public class CMestoRest extends OsnovniRest{
 		try {
 			return repo.findById(novoMesto.getId())
 					.map(mesto -> {
-						CMestoOdgovor odgovor;
-						mesto = novoMesto;
-						repo.save(mesto);
+						if(mesto.getVerzija() == novoMesto.getVerzija()) {
+							CMestoOdgovor odgovor;
+							if(novoMesto.getSr() == null || novoMesto.getSr().equals("") || novoMesto.getSr().isEmpty() || novoMesto.getSr().isBlank()) {
+								novoMesto.setSr(novoMesto.getNaziv());
+								}
+							if(novoMesto.getEn() == null || novoMesto.getEn().equals("") || novoMesto.getEn().isEmpty() || novoMesto.getEn().isBlank()) {
+								novoMesto.setEn(novoMesto.getNaziv());
+								}
+							mesto = novoMesto;
+							mesto.setVerzija(novoMesto.getVerzija() + 1);
+							repo.save(mesto);
+							odgovor = service.lista(null);
+							return new ResponseEntity<CMestoOdgovor>(odgovor, HttpStatus.ACCEPTED);
+							}else {
+								return new ResponseEntity<CMestoOdgovor>(HttpStatus.ALREADY_REPORTED);
+								}
+						
+						/*
 						if(mesto.getOpstina() == null) {
 							odgovor = service.listaPoDrzavi(mesto.getDrzava().getId());
 							}else {
 								odgovor = service.listaPoOpstini(mesto.getOpstina().getId());
 								}
-						return new ResponseEntity<CMestoOdgovor>(odgovor, HttpStatus.ACCEPTED);
+						*/
+						
+						
 					})
 					.orElseGet(() -> {
 						CMestoOdgovor odgovor;
 						novoMesto.setId(null);
 						novoMesto.setIzbrisan(false);
+						novoMesto.setVerzija(0);
+						if(novoMesto.getSr() == null || novoMesto.getSr().equals("") || novoMesto.getSr().isEmpty() || novoMesto.getSr().isBlank()) {
+							novoMesto.setSr(novoMesto.getNaziv());
+							}
+						if(novoMesto.getEn() == null || novoMesto.getEn().equals("") || novoMesto.getEn().isEmpty() || novoMesto.getEn().isBlank()) {
+							novoMesto.setEn(novoMesto.getNaziv());
+							}
 						repo.save(novoMesto);
+						/*
 						if(novoMesto.getOpstina() == null) {
 							odgovor = service.listaPoDrzavi(novoMesto.getDrzava().getId());
 							}else {
 								odgovor = service.listaPoOpstini(novoMesto.getOpstina().getId());
 								}
+						*/
+						odgovor = service.lista(null);
 						return new ResponseEntity<CMestoOdgovor>(odgovor, HttpStatus.ACCEPTED);
 					});
 			}catch (Exception e) {
