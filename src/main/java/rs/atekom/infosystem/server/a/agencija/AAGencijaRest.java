@@ -7,6 +7,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +30,7 @@ public class AAGencijaRest extends OsnovniRest{
 	@Autowired
 	AAgencijaService service;
 	
+	@PreAuthorize("hasAuthority('SISTEM')")
 	@GetMapping("/agencije")
 	public ResponseEntity<AAgencijaOdgovor> pretraga(@RequestParam(value = "pretraga") Optional<String> pretraga){
 		try {
@@ -39,8 +41,65 @@ public class AAGencijaRest extends OsnovniRest{
 				}
 		}
 	
+	@PreAuthorize("hasAuthority('SISTEM')")
 	@PutMapping("/agencija/snimi")
 	@Transactional
+	public ResponseEntity<AAgencijaOdgovor> snimi(@RequestBody AAgencija novaAgencija){
+		try {
+			return repo.findById(novaAgencija.getId() == null ? 0L : novaAgencija.getId())
+					.map(agencija -> {
+						return new ResponseEntity<AAgencijaOdgovor>(HttpStatus.INTERNAL_SERVER_ERROR);
+						})
+					.orElseGet(() -> {
+						novaAgencija.setId(null);
+						novaAgencija.setIzbrisan(false);
+						repo.save(novaAgencija);
+						return new ResponseEntity<>(service.napraviOdgovorSaListom(null), HttpStatus.ACCEPTED);
+					});
+			}catch (Exception e) {
+				e.printStackTrace();
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+				}
+		}
+	
+	@PreAuthorize("hasAuthority('SISTEM')")
+	@PutMapping("/agencija/izmeni")
+	@Transactional
+	public ResponseEntity<AAgencijaOdgovor> izmeni(@RequestBody AAgencija novaAgencija){
+		try {
+			return repo.findById(novaAgencija.getId() == null ? 0L : novaAgencija.getId())
+					.map(agencija -> {
+						agencija = novaAgencija;
+						repo.save(agencija);
+						return new ResponseEntity<>(service.napraviOdgovorSaListom(null), HttpStatus.ACCEPTED);
+						})
+					.orElseGet(() -> {
+						return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+					});
+			}catch (Exception e) {
+				e.printStackTrace();
+				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+				}
+		}
+	
+	@PreAuthorize("hasAuthority('SISTEM')")
+	@DeleteMapping("/agencija/brisi/{id}")
+	@Transactional
+	public ResponseEntity<AAgencijaOdgovor> brisi(@PathVariable Long id){
+		try {
+			repo.deleteById(id);
+			return new ResponseEntity<>(service.napraviOdgovorSaListom(null), HttpStatus.ACCEPTED);
+			}catch (Exception e) {
+				try {
+					AAgencija agencija = repo.findById(id).get();
+					agencija.setIzbrisan(true);
+					return new ResponseEntity<>(service.napraviOdgovorSaListom(null), HttpStatus.ACCEPTED);
+					}catch (Exception ee) {
+						ee.printStackTrace();
+						return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+						}
+				}
+		}
 	/*
 	 * @PreAuthorize("!hasAuthority('USER') || (#oldPassword != null && !#oldPassword.isEmpty() "
 			+ "&& authentication.principal == @userRepository.findById(#id).orElse(new net.reliqs.gleeometer.users.User()).email)")
@@ -94,59 +153,4 @@ public class AAGencijaRest extends OsnovniRest{
 	}
 			
 			*/
-	public ResponseEntity<AAgencijaOdgovor> snimi(@RequestBody AAgencija novaAgencija){
-		try {
-			return repo.findById(novaAgencija.getId() == null ? 0L : novaAgencija.getId())
-					.map(agencija -> {
-						return new ResponseEntity<AAgencijaOdgovor>(HttpStatus.INTERNAL_SERVER_ERROR);
-						})
-					.orElseGet(() -> {
-						novaAgencija.setId(null);
-						novaAgencija.setIzbrisan(false);
-						repo.save(novaAgencija);
-						return new ResponseEntity<>(service.napraviOdgovorSaListom(null), HttpStatus.ACCEPTED);
-					});
-			}catch (Exception e) {
-				e.printStackTrace();
-				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-				}
-		}
-	
-	@PutMapping("/agencija/izmeni")
-	@Transactional
-	public ResponseEntity<AAgencijaOdgovor> izmeni(@RequestBody AAgencija novaAgencija){
-		try {
-			return repo.findById(novaAgencija.getId() == null ? 0L : novaAgencija.getId())
-					.map(agencija -> {
-						agencija = novaAgencija;
-						repo.save(agencija);
-						return new ResponseEntity<>(service.napraviOdgovorSaListom(null), HttpStatus.ACCEPTED);
-						})
-					.orElseGet(() -> {
-						return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-					});
-			}catch (Exception e) {
-				e.printStackTrace();
-				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-				}
-		}
-	
-	@DeleteMapping("/agencija/brisi/{id}")
-	@Transactional
-	public ResponseEntity<AAgencijaOdgovor> brisi(@PathVariable Long id){
-		try {
-			repo.deleteById(id);
-			return new ResponseEntity<>(service.napraviOdgovorSaListom(null), HttpStatus.ACCEPTED);
-			}catch (Exception e) {
-				try {
-					AAgencija agencija = repo.findById(id).get();
-					agencija.setIzbrisan(true);
-					return new ResponseEntity<>(service.napraviOdgovorSaListom(null), HttpStatus.ACCEPTED);
-					}catch (Exception ee) {
-						ee.printStackTrace();
-						return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-						}
-				}
-		}
-	
 	}

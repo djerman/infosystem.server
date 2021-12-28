@@ -7,8 +7,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import rs.atekom.infosystem.baza.h.HKontakt;
+import rs.atekom.infosystem.server.a.uloga.AUlogaRepo;
 import rs.atekom.infosystem.server.h.HKontaktRepo;
 
 @Service
@@ -16,6 +16,8 @@ public class FKontaktDetailService implements UserDetailsService{
 
 	@Autowired
 	HKontaktRepo repo;
+	@Autowired
+	AUlogaRepo repoUloga;
 	
 	@Override
 	public UserDetails loadUserByUsername(String korisnik) throws UsernameNotFoundException {
@@ -26,7 +28,8 @@ public class FKontaktDetailService implements UserDetailsService{
 			throw new UsernameNotFoundException(korisnik);
 			}else {
 				BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-				user = User.withUsername(kontakt.getKorisnicko()).password(passwordEncoder.encode(kontakt.getLozinka())).authorities("USER").build();
+				String uloga = kontakt.getUloga().getNaziv();
+				user = User.withUsername(kontakt.getKorisnicko()).password(passwordEncoder.encode(kontakt.getLozinka())).authorities(uloga).build();
 				}
 		return user;
 		}
