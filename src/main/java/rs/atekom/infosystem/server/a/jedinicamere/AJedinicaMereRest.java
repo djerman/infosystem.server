@@ -7,6 +7,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +38,7 @@ public class AJedinicaMereRest {
 				}
 		}
 	
+	@PreAuthorize("hasAuthority('SISTEM')")
 	@PutMapping("/jedinica/snimi")
 	@Transactional
 	public ResponseEntity<AJedinicaMereOdgovor> snimi(@RequestBody AJedinicaMere novaJedinica) {
@@ -106,6 +108,7 @@ public class AJedinicaMereRest {
 				}
 		}
 	
+	@PreAuthorize("hasAuthority('SISTEM')")
 	@DeleteMapping("/jedinica/brisi/{id}")
 	@Transactional
 	public ResponseEntity<AJedinicaMereOdgovor> brisi(@PathVariable Long id){
