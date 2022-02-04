@@ -7,6 +7,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -59,6 +60,7 @@ public class BOpstinaRest extends OsnovniRest{
 				}
 		}
 	
+	@PreAuthorize("hasAuthority('SISTEM')")
 	@PutMapping("/opstina/snimi")
 	@Transactional
 	public ResponseEntity<BOpstinaOdgovor> snimiIzmeni(@RequestBody BOpstina novaOpstina){
@@ -92,6 +94,7 @@ public class BOpstinaRest extends OsnovniRest{
 	 * @param id
 	 * @return
 	 */
+	@PreAuthorize("hasAuthority('SISTEM')")
 	@DeleteMapping("/opstina/brisi/{id}")
 	@Transactional
 	public ResponseEntity<BOpstinaOdgovor> brisi(@PathVariable Long id){

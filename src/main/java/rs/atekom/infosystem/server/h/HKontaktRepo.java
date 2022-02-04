@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import rs.atekom.infosystem.baza.h.HKontakt;
 
-@Repository
+@Repository("kontaktRepo")
 public interface HKontaktRepo extends PagingAndSortingRepository<HKontakt, Long>{
 
 	public Optional<HKontakt> findByKorisnickoAndLozinka(String korisnicko, String lozinka);
@@ -15,5 +15,7 @@ public interface HKontaktRepo extends PagingAndSortingRepository<HKontakt, Long>
 	public HKontakt findByKorisnickoAndIzbrisanFalseAndAktivanTrueAndPristupTrue(String korisnicko);
 	
 	public HKontakt findTopByKorisnickoAndIzbrisanFalseAndAktivanTrueAndPristupTrue(String korisnicko);
+	
+	public HKontakt findByKorisnickoAndPretplatnikIdAndAktivanTrueAndPristupTrue(String korisnicko, Long id);
 	
 	}

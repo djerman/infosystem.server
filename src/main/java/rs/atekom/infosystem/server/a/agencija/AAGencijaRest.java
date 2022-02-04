@@ -136,6 +136,8 @@ public class AAGencijaRest extends OsnovniRest{
        }
    }
 
+   //@PreAuthorize("hasAuthority('SISTEM') || (hasAuthority('AGENCIJA') && #pretplatnik != null) || (hasAuthority('ADMINISTRATOR') && #pretplatnik != null)")
+   
    @PutMapping("/{id}/changePassword")
    @PreAuthorize("!hasAuthority('USER') || (#oldPassword != null && !#oldPassword.isEmpty() 
    && authentication.principal == @userRepository.findById(#id).orElse(new net.reliqs.gleeometer.users.User()).email)")

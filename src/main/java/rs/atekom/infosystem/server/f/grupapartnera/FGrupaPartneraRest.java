@@ -3,6 +3,7 @@ package rs.atekom.infosystem.server.f.grupapartnera;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +23,7 @@ public class FGrupaPartneraRest extends OsnovniRest{
 	@Autowired
 	FGrupaPartneraService service;
 	
+	//@PreAuthorize("hasAuthority('SISTEM') || hasAuthority('AGENCIJA') || hasAuthority('ADMINISTRATOR')")
 	@GetMapping("/grupepartnera")
 	public ResponseEntity<FGrupaPartneraOdgovor> lista(Long pretplatnikId){
 		try {
@@ -32,11 +34,13 @@ public class FGrupaPartneraRest extends OsnovniRest{
 				}
 		}
 	
+	@PreAuthorize("hasAuthority('SISTEM') || hasAuthority('AGENCIJA') || hasAuthority('ADMINISTRATOR')")
 	@PutMapping("/grupapartnera/")
 	public ResponseEntity<FGrupaPartneraOdgovor> snimi(@RequestBody FGrupaPartnera grupa){
 		return service.snimi(grupa);
 		}
 	
+	@PreAuthorize("hasAuthority('SISTEM') || hasAuthority('AGENCIJA') || hasAuthority('ADMINISTRATOR')")
 	@DeleteMapping("/grupapartnera/{id}")
 	public ResponseEntity<FGrupaPartneraOdgovor> izbrisi(@PathVariable Long id){
 		return service.izbrisi(id);

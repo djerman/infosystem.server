@@ -19,7 +19,7 @@ import rs.atekom.infosystem.server.f.grupapartnera.FGrupaPartneraRepo;
 import rs.atekom.infosystem.server.f.preduzece.FPreduzeceRepo;
 import rs.atekom.infosystem.server.i.adresa.IAdresaRepo;
 
-@Service
+@Service(value = "partnerService")
 public class GPartnerService extends OsnovniService{
 
 	@Autowired

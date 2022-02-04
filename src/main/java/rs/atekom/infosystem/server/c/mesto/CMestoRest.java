@@ -7,6 +7,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -74,6 +75,7 @@ public class CMestoRest extends OsnovniRest{
 				}
 		}
 	
+	@PreAuthorize("hasAuthority('SISTEM')")
 	@PutMapping("/mesto/snimi")
 	@Transactional
 	public ResponseEntity<CMestoOdgovor> snimiIzmeni(@RequestBody CMesto novoMesto){
@@ -140,6 +142,7 @@ public class CMestoRest extends OsnovniRest{
 	 * @param id
 	 * @return
 	 */
+	@PreAuthorize("hasAuthority('SISTEM')")
 	@DeleteMapping("/mesto/brisi/{id}")
 	@Transactional
 	public ResponseEntity<CMestoOdgovor> brisi(@PathVariable Long id){

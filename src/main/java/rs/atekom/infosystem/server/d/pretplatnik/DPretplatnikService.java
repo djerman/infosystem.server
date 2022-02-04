@@ -21,13 +21,15 @@ import rs.atekom.infosystem.baza.d.pretplatnik.DPodaciZaPretplatnikaOdgovor;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnik;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikOdgovor;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikPodaciOdgovor;
+import rs.atekom.infosystem.baza.h.HKontakt;
 import rs.atekom.infosystem.server.OsnovniService;
 import rs.atekom.infosystem.server.a.agencija.AAgencijaRepo;
 import rs.atekom.infosystem.server.a.drzava.ADrzavaRepo;
 import rs.atekom.infosystem.server.c.mesto.CMestoRepo;
 import rs.atekom.infosystem.server.e.organizacija.EOrganizacijaRepo;
+import rs.atekom.infosystem.server.h.HKontaktRepo;
 
-@Service
+@Service(value = "pretplatnikService")
 public class DPretplatnikService extends OsnovniService{
 
 	@Autowired
@@ -40,6 +42,8 @@ public class DPretplatnikService extends OsnovniService{
 	ADrzavaRepo repoDrzava;
 	@Autowired
 	EOrganizacijaRepo repoOrganizacija;
+	@Autowired
+	HKontaktRepo repoKontakt;
 	
 	//String RESOURCES_DIR = DPretplatnikService.class.getResource("/").getPath();
 	//String RESOURCES_DIR = DPretplatnikService.class.getResource("/D/serverslike/").getPath();
@@ -132,5 +136,21 @@ public class DPretplatnikService extends OsnovniService{
 				return pretplatnik;
 				}
 		}
+	
+	public boolean proveraZaAgenciju(String korisnicko, Long pretplatnikId) {
+		boolean provera = false;
+		HKontakt korisnik = repoKontakt.findByKorisnickoAndIzbrisanFalseAndAktivanTrueAndPristupTrue(korisnicko);
+		if(korisnik != null) {
+			AAgencija agencija = korisnik.getAgencija();
+			if(agencija != null) {
+				DPretplatnik pretplatnik = repo.findByIdAndAgencijaId(pretplatnikId, agencija.getId());
+				if(pretplatnik != null) {
+					provera = true;
+				}
+			}
+		}
+		
+		return provera;
+	}
 	
 	}

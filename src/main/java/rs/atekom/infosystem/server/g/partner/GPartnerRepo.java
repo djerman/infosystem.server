@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import rs.atekom.infosystem.baza.g.GPartner;
 
-@Repository
+@Repository(value = "partnerRepo")
 public interface GPartnerRepo extends PagingAndSortingRepository<GPartner, Long>{
 
 	//public List<GPartner> findByPretplatnikAndTipAndIzbrisanFalse(DPretplatnik pretplatnik, Integer tip);

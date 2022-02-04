@@ -7,6 +7,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,8 +39,8 @@ public class DPretplatnikRest extends OsnovniRest{
 	@Autowired
 	IAdresaRepo repoAdresa;
 	
+	@PreAuthorize("hasAuthority('SISTEM') || hasAuthority('AGENCIJA')")
 	@GetMapping("/pretplatnici")
-	//@PreAuthorize("")
 	public ResponseEntity<DPretplatnikOdgovor> pretraga(@RequestParam(value = "pretraga") Optional<String> pretraga, 
 			@RequestParam(value = "agencijaId") Optional<Long> agencijaId){
 		try {
@@ -50,6 +51,7 @@ public class DPretplatnikRest extends OsnovniRest{
 				}
 		}
 	
+	@PreAuthorize("hasAuthority('SISTEM')")
 	@GetMapping("/pretplatnici/podaci")
 	public ResponseEntity<DPodaciZaPretplatnikaOdgovor> podaci(){
 		try {
@@ -60,6 +62,7 @@ public class DPretplatnikRest extends OsnovniRest{
 				}
 		}
 	
+	@PreAuthorize("hasAuthority('SISTEM')")
 	@PutMapping("/pretplatnik/snimi")
 	@Transactional
 	public ResponseEntity<DPretplatnikOdgovor> snimiIzmeni(@RequestBody DPretplatnikPodaciOdgovor noviPretplatnik){
@@ -131,6 +134,7 @@ public class DPretplatnikRest extends OsnovniRest{
 				}
 		}
 	
+	@PreAuthorize("hasAuthority('SISTEM')")
 	@DeleteMapping("/pretplatnik/brisi/{id}")
 	@Transactional
 	public ResponseEntity<DPretplatnikOdgovor>  brisi(@PathVariable Long id){

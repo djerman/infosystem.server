@@ -14,13 +14,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 import rs.atekom.infosystem.server.bezbednost.jwt.JwtAuthenticationEntryPoint;
 import rs.atekom.infosystem.server.bezbednost.jwt.JwtRequestFilter;
 
 @Configuration
 @EnableWebSecurity//(debug=true)
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter{
 
 	//Create 2 users for demo

@@ -32,4 +32,6 @@ public interface DPretplatnikRepo extends PagingAndSortingRepository<DPretplatni
 			+ " ORDER BY p.naziv ASC")
 	public List<DPretplatnik> pretragaSvih(@Param("pretraga") String pretraga);
 	
+	public DPretplatnik findByIdAndAgencijaId(Long id, Long agencija);
+	
 	}
