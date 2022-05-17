@@ -38,7 +38,7 @@ public class EGrupaPravaService extends OsnovniService{
 	
 	public ResponseEntity<EGrupaPravaOdgovor> snimi(EGrupaPrava nova){
 		EGrupaPravaOdgovor odgovor = new EGrupaPravaOdgovor();
-		List<EGrupaPrava> lista = repo.findByNazivAndIzbrisanFalse(nova.getNaziv());
+		List<EGrupaPrava> lista = repo.findByPretplatnikAndNazivAndIzbrisanFalse(nova.getPretplatnik(), nova.getNaziv());
 		return repo.findById(nova.getId() != null ? nova.getId() : 0L)
 				.map(grupa -> {
 					try {
@@ -46,13 +46,19 @@ public class EGrupaPravaService extends OsnovniService{
 							boolean postoji = false;
 							if(nova.getNaziv() != null) {
 								for(EGrupaPrava grupaPrava : lista) {
-									if(nova.getPretplatnik() == grupaPrava.getPretplatnik() && nova.getId() != grupaPrava.getId()) {
+									if(nova.getId() != grupaPrava.getId()) {
 										postoji = true;
 									}
 								}
 								if(!postoji) {
 									grupa = nova;
 									grupa.setVerzija(nova.getVerzija() + 1);
+									if(grupa.getSr() == null || grupa.getSr().equals(""))
+										grupa.setSr(grupa.getNaziv());
+									if(grupa.getEn() == null || grupa.getEn().equals(""))
+										grupa.setEn(grupa.getNaziv());
+									if(grupa.getDe() == null || grupa.getDe().equals(""))
+										grupa.setDe(grupa.getNaziv());
 									repo.save(grupa);
 									odgovor.setLista(repo.findByPretplatnikAndIzbrisanFalseOrderByNazivAsc(nova.getPretplatnik()));
 								}else {
@@ -62,7 +68,6 @@ public class EGrupaPravaService extends OsnovniService{
 							}else {
 								return new ResponseEntity<EGrupaPravaOdgovor>(HttpStatus.FORBIDDEN);
 							}
-
 						}else {
 							return new ResponseEntity<EGrupaPravaOdgovor>(HttpStatus.MULTI_STATUS);
 						}
@@ -74,12 +79,20 @@ public class EGrupaPravaService extends OsnovniService{
 						if(lista == null || lista.size() == 0) {
 							nova.setIzbrisan(false);
 							nova.setVerzija(0);
+							if(nova.getSr() == null || nova.getSr().equals(""))
+								nova.setSr(nova.getNaziv());
+							if(nova.getEn() == null || nova.getEn().equals(""))
+								nova.setEn(nova.getNaziv());
+							if(nova.getDe() == null || nova.getDe().equals(""))
+								nova.setDe(nova.getNaziv());
+							repo.save(nova);
 							odgovor.setLista(repo.findByPretplatnikAndIzbrisanFalseOrderByNazivAsc(nova.getPretplatnik()));
 							return new ResponseEntity<EGrupaPravaOdgovor>(odgovor, HttpStatus.ACCEPTED);
 						}else {
 							return new ResponseEntity<EGrupaPravaOdgovor>(odgovor, HttpStatus.ALREADY_REPORTED);
 						}
 					}catch (Exception e) {
+						e.printStackTrace();
 						return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 					}
 				});
