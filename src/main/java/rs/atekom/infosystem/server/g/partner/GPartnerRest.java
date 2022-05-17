@@ -38,13 +38,17 @@ public class GPartnerRest extends OsnovniRest{
 		return service.listaPreduzeca(pretraga, pretplatnikId, kupac);
 		}
 	
-	@PreAuthorize("hasAuthority('SISTEM') || hasAuthority('AGENCIJA') || hasAuthority('ADMINISTRATOR')")
+	@PreAuthorize("hasAuthority('SISTEM')"
+			+ " || (hasAuthority('AGENCIJA') && @pretplatnikService.proveraZaAgenciju(authentication.principal.username, #noviPartner))"
+			+ " || (hasAuthority('ADMINISTRATOR') && @kontaktService.proveraKorisnikaPrekoPartnera(authentication.principal.username, #noviPartner))")
 	@PutMapping("/partner/snimi")
 	public ResponseEntity<GPartnerOdgovor> snimi(@RequestBody GPartnerOdgovorPodaci noviPartner, @RequestParam("kupac") Optional<Boolean> kupac){
 		return service.snimiPreduzece(noviPartner, kupac);//return service.snimiPreduzece(noviPartner, kupac)
 		}
 	
-	@PreAuthorize("hasAuthority('SISTEM') || hasAuthority('AGENCIJA') || hasAuthority('ADMINISTRATOR')")
+	@PreAuthorize("hasAuthority('SISTEM')"
+			+ " || (hasAuthority('AGENCIJA') && @pretplatnikService.proveraZaAgenciju(authentication.principal.username, #id))"
+			+ " || (hasAuthority('ADMINISTRATOR') && @kontaktService.proveraKorisnikaPrekoIdPartnera(authentication.principal.username, #id))")
 	@DeleteMapping("/partner/brisi")
 	public ResponseEntity<GPartnerOdgovor> brisi(@RequestParam("id") Long id, @RequestParam("kupac") Optional<Boolean> kupac){
 		return service.brisiPreduzece(id, kupac);

@@ -21,13 +21,15 @@ import rs.atekom.infosystem.baza.d.pretplatnik.DPodaciZaPretplatnikaOdgovor;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnik;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikOdgovor;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikPodaciOdgovor;
+import rs.atekom.infosystem.baza.g.GPartnerOdgovor;
 import rs.atekom.infosystem.baza.h.HKontakt;
 import rs.atekom.infosystem.server.OsnovniService;
 import rs.atekom.infosystem.server.a.agencija.AAgencijaRepo;
 import rs.atekom.infosystem.server.a.drzava.ADrzavaRepo;
 import rs.atekom.infosystem.server.c.mesto.CMestoRepo;
 import rs.atekom.infosystem.server.e.organizacija.EOrganizacijaRepo;
-import rs.atekom.infosystem.server.h.HKontaktRepo;
+import rs.atekom.infosystem.server.g.partner.GPartnerRepo;
+import rs.atekom.infosystem.server.h.kontakt.HKontaktRepo;
 
 @Service(value = "pretplatnikService")
 public class DPretplatnikService extends OsnovniService{
@@ -44,6 +46,8 @@ public class DPretplatnikService extends OsnovniService{
 	EOrganizacijaRepo repoOrganizacija;
 	@Autowired
 	HKontaktRepo repoKontakt;
+	@Autowired
+	GPartnerRepo partnerRepo;
 	
 	//String RESOURCES_DIR = DPretplatnikService.class.getResource("/").getPath();
 	//String RESOURCES_DIR = DPretplatnikService.class.getResource("/D/serverslike/").getPath();
@@ -152,5 +156,33 @@ public class DPretplatnikService extends OsnovniService{
 		
 		return provera;
 	}
+	
+	public boolean proveraZaAgenciju(String korisnicko, GPartnerOdgovor partnerOdgovor) {
+		boolean provera = false;
+		HKontakt korisnik = repoKontakt.findByKorisnickoAndIzbrisanFalseAndAktivanTrueAndPristupTrue(korisnicko);
+		if(korisnik != null) {
+			AAgencija agencija = korisnik.getAgencija();
+			if(agencija != null) {
+				DPretplatnik pretplatnik = repo.findByIdAndAgencijaId(partnerOdgovor.getPartner().getPretplatnik().getId(), agencija.getId());
+				if(pretplatnik != null) {
+					provera = true;
+					}
+				}
+			}
+		return provera;
+		}
+	
+	public boolean proveraZaAgencijuPrekoPartnera(String korisnicko, Long id) {
+		boolean provera = false;
+		HKontakt korisnik = repoKontakt.findByKorisnickoAndIzbrisanFalseAndAktivanTrueAndPristupTrue(korisnicko);
+		if(korisnik != null) {
+			AAgencija agencija = korisnik.getAgencija();
+			DPretplatnik pretplatnik = repo.findByIdAndAgencijaId(partnerRepo.findById(id).get().getPretplatnik().getId(), agencija.getId());
+			if(pretplatnik != null) {
+				provera = true;
+				}
+			}
+		return provera;
+		}
 	
 	}

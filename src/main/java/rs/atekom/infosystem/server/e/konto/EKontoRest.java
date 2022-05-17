@@ -21,7 +21,9 @@ public class EKontoRest extends OsnovniRest{
 	@Autowired
 	EKontoService service;
 	
-	@PreAuthorize("hasAuthority('SISTEM') || hasAuthority('AGENCIJA') || hasAuthority('ADMINISTRATOR')")
+	@PreAuthorize("hasAuthority('SISTEM')"
+			+ " || hasAuthority('AGENCIJA')"
+			+ " || hasAuthority('ADMINISTRATOR')")
 	@GetMapping("/konta")
 	public ResponseEntity<EKontoOdgovor> pretraga(@RequestParam("pretraga") Optional<String> pretraga, 
 			@RequestParam("podgrupaId") Optional<Long> podgrupa, @RequestParam("pretplatnikId") Optional<Long> pretplatnik){

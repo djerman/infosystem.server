@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import rs.atekom.infosystem.baza.a.uloga.AUloga;
 
-@Repository
+@Repository(value = "ulogaRepo")
 public interface AUlogaRepo extends PagingAndSortingRepository<AUloga, Long>{
 
 	public AUloga findByIdAndIzbrisanFalse(Long id);

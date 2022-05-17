@@ -9,7 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import rs.atekom.infosystem.baza.h.HKontakt;
 import rs.atekom.infosystem.server.a.uloga.AUlogaRepo;
-import rs.atekom.infosystem.server.h.HKontaktRepo;
+import rs.atekom.infosystem.server.h.kontakt.HKontaktRepo;
 
 @Service
 public class FKontaktDetailService implements UserDetailsService{
@@ -28,7 +28,7 @@ public class FKontaktDetailService implements UserDetailsService{
 			throw new UsernameNotFoundException(korisnik);
 			}else {
 				BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-				String uloga = kontakt.getUloga().getNaziv();
+				String uloga = kontakt.getUloga().getSr();
 				user = User.withUsername(kontakt.getKorisnicko()).password(passwordEncoder.encode(kontakt.getLozinka())).authorities(uloga).build();
 				}
 		return user;

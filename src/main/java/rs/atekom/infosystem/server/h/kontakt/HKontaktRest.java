@@ -1,4 +1,4 @@
-package rs.atekom.infosystem.server.h;
+package rs.atekom.infosystem.server.h.kontakt;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;

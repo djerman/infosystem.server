@@ -1,4 +1,4 @@
-package rs.atekom.infosystem.server.db.kontoracun;
+package rs.atekom.infosystem.server.a.prava;
 
 import java.util.Optional;
 
@@ -11,24 +11,22 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import rs.atekom.infosystem.baza.db.kontoracun.DBKontoRacunOdgovor;
+import rs.atekom.infosystem.baza.a.prava.APravaOdgovor;
 import rs.atekom.infosystem.server.OsnovniRest;
 
 @RestController
 @Validated
-public class DBKontoRacunRest extends OsnovniRest{
+public class APravaRest extends OsnovniRest{
 
 	@Autowired
-	DBKontoRacunService service;
+	APravaService service;
 	
 	@PreAuthorize("hasAuthority('SISTEM')"
-			+ " || hasAuthority('AGENCIJA')"
 			+ " || hasAuthority('ADMINISTRATOR')")
-	@GetMapping("/racunikonta")
-	public ResponseEntity<DBKontoRacunOdgovor> pretraga(@RequestParam(value = "pretraga") Optional<String> pretraga, 
-			@RequestParam("grupaId") Optional<Long> grupa){
+	@GetMapping("/prava")
+	public ResponseEntity<APravaOdgovor> pretraga(@RequestParam(value = "pretraga") Optional<String> pretraga){
 		try {
-			return new ResponseEntity<DBKontoRacunOdgovor>(service.pretraga(pretraga, grupa), HttpStatus.ACCEPTED);
+			return new ResponseEntity<APravaOdgovor>(service.listaPrava(pretraga), HttpStatus.ACCEPTED);
 			}catch (Exception e) {
 				e.printStackTrace();
 				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

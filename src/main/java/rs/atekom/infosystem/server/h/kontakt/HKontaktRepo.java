@@ -1,4 +1,4 @@
-package rs.atekom.infosystem.server.h;
+package rs.atekom.infosystem.server.h.kontakt;
 
 import java.util.Optional;
 

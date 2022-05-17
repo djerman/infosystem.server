@@ -6,7 +6,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnik;
-import rs.atekom.infosystem.baza.e.EOrganizacija;
+import rs.atekom.infosystem.baza.e.organizacija.EOrganizacija;
 
 @Repository
 public interface EOrganizacijaRepo extends PagingAndSortingRepository<EOrganizacija, Long>{

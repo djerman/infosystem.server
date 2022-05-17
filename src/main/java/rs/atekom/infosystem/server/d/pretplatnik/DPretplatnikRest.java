@@ -20,7 +20,7 @@ import rs.atekom.infosystem.baza.d.pretplatnik.DPodaciZaPretplatnikaOdgovor;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnik;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikOdgovor;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikPodaciOdgovor;
-import rs.atekom.infosystem.baza.e.EOrganizacija;
+import rs.atekom.infosystem.baza.e.organizacija.EOrganizacija;
 import rs.atekom.infosystem.baza.i.IAdresa;
 import rs.atekom.infosystem.server.OsnovniRest;
 import rs.atekom.infosystem.server.e.organizacija.EOrganizacijaRepo;

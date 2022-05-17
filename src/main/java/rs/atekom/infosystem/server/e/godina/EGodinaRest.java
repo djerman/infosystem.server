@@ -3,6 +3,7 @@ package rs.atekom.infosystem.server.e.godina;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +24,9 @@ public class EGodinaRest extends OsnovniRest{
 	@Autowired
 	EGodinaService service;
 	
+	@PreAuthorize("hasAuthority('SISTEM')"
+			+ " || hasAuthority('AGENCIJA')"
+			+ " || hasAuthority('ADMINISTRATOR')")
 	@GetMapping("/godine")
 	public ResponseEntity<EGodinaOdgovor> sve(){
 		try {

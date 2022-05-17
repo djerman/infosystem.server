@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import rs.atekom.infosystem.baza.h.HKontakt;
-import rs.atekom.infosystem.server.h.HKontaktRepo;
+import rs.atekom.infosystem.server.h.kontakt.HKontaktRepo;
 
 @Service
 public class FKontaktService {

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import rs.atekom.infosystem.baza.e.EOrganizacijaOdgovor;
+import rs.atekom.infosystem.baza.e.organizacija.EOrganizacijaOdgovor;
 import rs.atekom.infosystem.server.OsnovniRest;
 
 @RestController
