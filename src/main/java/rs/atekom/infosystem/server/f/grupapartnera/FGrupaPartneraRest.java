@@ -21,7 +21,7 @@ import rs.atekom.infosystem.server.OsnovniRest;
 public class FGrupaPartneraRest extends OsnovniRest{
 
 	@Autowired
-	FGrupaPartneraService service;
+	private FGrupaPartneraService service;
 	
 	/*@PreAuthorize("hasAuthority('SISTEM')"
 			+ " || (hasAuthority('AGENCIJA') && @pretplatnikService.proveraZaAgenciju(authentication.principal.username, #pretplatnikId))"

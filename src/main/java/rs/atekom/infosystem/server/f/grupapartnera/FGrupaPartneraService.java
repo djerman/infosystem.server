@@ -14,9 +14,9 @@ import rs.atekom.infosystem.server.d.pretplatnik.DPretplatnikRepo;
 public class FGrupaPartneraService extends OsnovniService{
 
 	@Autowired
-	FGrupaPartneraRepo repo;
+	private FGrupaPartneraRepo repo;
 	@Autowired
-	DPretplatnikRepo repoPretplatnik;
+	private DPretplatnikRepo repoPretplatnik;
 	
 	public FGrupaPartneraOdgovor lista(Long pretplatnikId) {
 		try {

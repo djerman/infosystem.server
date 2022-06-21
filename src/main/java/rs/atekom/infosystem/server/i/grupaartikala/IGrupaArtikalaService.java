@@ -27,7 +27,7 @@ public class IGrupaArtikalaService extends OsnovniService{
 		}
 	
 	public ResponseEntity<IGrupaArtikalaOdgovor> snimi(IGrupaArtikala nova) {
-		return repo.findById(nova.getId())
+		return repo.findById(nova.getId() == null ? 0 : nova.getId())
 				.map(grupa -> {
 					try {
 						grupa = nova;
@@ -52,7 +52,7 @@ public class IGrupaArtikalaService extends OsnovniService{
 		IGrupaArtikala grupa = repo.findById(grupaId).get();
 		try {
 			repo.delete(grupa);
-			return new ResponseEntity<IGrupaArtikalaOdgovor>(lista(grupaId), HttpStatus.ACCEPTED);
+			return new ResponseEntity<IGrupaArtikalaOdgovor>(lista(grupa.getPretplatnik().getId()), HttpStatus.ACCEPTED);
 			}catch (Exception e) {
 				try {
 					grupa.setIzbrisan(true);

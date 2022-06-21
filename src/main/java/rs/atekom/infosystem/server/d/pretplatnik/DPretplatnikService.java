@@ -17,17 +17,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import rs.atekom.infosystem.baza.a.agencija.AAgencija;
+import rs.atekom.infosystem.baza.a.tipbrojaca.ATipBrojaca;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPodaciZaPretplatnikaOdgovor;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnik;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikOdgovor;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikPodaciOdgovor;
+import rs.atekom.infosystem.baza.f.brojac.FBrojac;
 import rs.atekom.infosystem.baza.g.GPartnerOdgovor;
 import rs.atekom.infosystem.baza.h.HKontakt;
 import rs.atekom.infosystem.server.OsnovniService;
 import rs.atekom.infosystem.server.a.agencija.AAgencijaRepo;
 import rs.atekom.infosystem.server.a.drzava.ADrzavaRepo;
+import rs.atekom.infosystem.server.a.tipbrojaca.ATipBrojacaRepo;
 import rs.atekom.infosystem.server.c.mesto.CMestoRepo;
 import rs.atekom.infosystem.server.e.organizacija.EOrganizacijaRepo;
+import rs.atekom.infosystem.server.f.brojac.FBrojacRepo;
 import rs.atekom.infosystem.server.g.partner.GPartnerRepo;
 import rs.atekom.infosystem.server.h.kontakt.HKontaktRepo;
 
@@ -35,19 +39,23 @@ import rs.atekom.infosystem.server.h.kontakt.HKontaktRepo;
 public class DPretplatnikService extends OsnovniService{
 
 	@Autowired
-	DPretplatnikRepo repo;
+	private DPretplatnikRepo repo;
 	@Autowired
-	AAgencijaRepo repoAgencija;
+	private AAgencijaRepo repoAgencija;
 	@Autowired
-	CMestoRepo repoMesta;
+	private CMestoRepo repoMesta;
 	@Autowired
-	ADrzavaRepo repoDrzava;
+	private ADrzavaRepo repoDrzava;
 	@Autowired
-	EOrganizacijaRepo repoOrganizacija;
+	private EOrganizacijaRepo repoOrganizacija;
 	@Autowired
-	HKontaktRepo repoKontakt;
+	private HKontaktRepo repoKontakt;
 	@Autowired
-	GPartnerRepo partnerRepo;
+	private GPartnerRepo partnerRepo;
+	@Autowired
+	private ATipBrojacaRepo repoTipBrojaca;
+	@Autowired
+	private FBrojacRepo repoBrojac;
 	
 	//String RESOURCES_DIR = DPretplatnikService.class.getResource("/").getPath();
 	//String RESOURCES_DIR = DPretplatnikService.class.getResource("/D/serverslike/").getPath();
@@ -95,7 +103,23 @@ public class DPretplatnikService extends OsnovniService{
 			if(pretplatnik.getSlika() != null) {
 				pretplatnik.setLogo(sacuvajSliku(pretplatnik.getSlika(), pretplatnik.getSlikaIme()));
 				}
-			return repo.save(pretplatnik);
+			DPretplatnik pretplatnikSacuvan = repo.save(pretplatnik);
+			if(pretplatnik.getId() == null) {
+				List<ATipBrojaca> tipovi = repoTipBrojaca.findAll();
+				for(ATipBrojaca tip : tipovi) {
+					FBrojac brojac = new FBrojac();
+					brojac.setPretplatnik(pretplatnikSacuvan);
+					brojac.setTip(tip);
+					brojac.setPrefiks("");
+					brojac.setBrojPolja(4);
+					brojac.setStanje(1);
+					brojac.setSufiks("");
+					brojac.setReset(false);
+					brojac.setVerzija(0);
+					repoBrojac.save(brojac);
+				}
+			}
+			return pretplatnikSacuvan;
 			}catch (Exception e) {
 				e.printStackTrace();
 				return repo.save(pretplatnik);

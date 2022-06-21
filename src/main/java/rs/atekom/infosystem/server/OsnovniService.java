@@ -8,4 +8,8 @@ public class OsnovniService {
 		// TODO Auto-generated constructor stub
 		}
 	
+	public int strana(int strana) {
+		return strana - 1;
+		}
+	
 	}

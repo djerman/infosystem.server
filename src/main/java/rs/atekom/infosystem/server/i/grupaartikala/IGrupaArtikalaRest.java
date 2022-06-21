@@ -5,8 +5,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import rs.atekom.infosystem.baza.i.grupaartikala.IGrupaArtikala;
@@ -37,7 +39,7 @@ public class IGrupaArtikalaRest extends OsnovniRest{
 	@PreAuthorize("hasAuthority('SISTEM')"
 			+ " || hasAuthority('AGENCIJA')"
 			+ " || hasAuthority('ADMINISTRATOR')")
-	@GetMapping("/grupaartikala")
+	@PutMapping("/grupaartikala/")
 	public ResponseEntity<IGrupaArtikalaOdgovor> snimi(@RequestBody IGrupaArtikala grupa){
 		return service.snimi(grupa);
 		}
@@ -45,7 +47,7 @@ public class IGrupaArtikalaRest extends OsnovniRest{
 	@PreAuthorize("hasAuthority('SISTEM')"
 			+ " || hasAuthority('AGENCIJA')"
 			+ " || hasAuthority('ADMINISTRATOR')")
-	@GetMapping("/grupaartikala/{id}")
+	@DeleteMapping("/grupaartikala/{id}")
 	public ResponseEntity<IGrupaArtikalaOdgovor> izbrisi(@PathVariable Long id){
 		return service.izbrisi(id);
 		}
