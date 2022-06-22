@@ -10,28 +10,23 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
 import javax.imageio.ImageIO;
-
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import rs.atekom.infosystem.baza.a.agencija.AAgencija;
-import rs.atekom.infosystem.baza.a.tipbrojaca.ATipBrojaca;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPodaciZaPretplatnikaOdgovor;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnik;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikOdgovor;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikPodaciOdgovor;
-import rs.atekom.infosystem.baza.f.brojac.FBrojac;
 import rs.atekom.infosystem.baza.g.GPartnerOdgovor;
 import rs.atekom.infosystem.baza.h.HKontakt;
 import rs.atekom.infosystem.server.OsnovniService;
 import rs.atekom.infosystem.server.a.agencija.AAgencijaRepo;
 import rs.atekom.infosystem.server.a.drzava.ADrzavaRepo;
-import rs.atekom.infosystem.server.a.tipbrojaca.ATipBrojacaRepo;
 import rs.atekom.infosystem.server.c.mesto.CMestoRepo;
 import rs.atekom.infosystem.server.e.organizacija.EOrganizacijaRepo;
-import rs.atekom.infosystem.server.f.brojac.FBrojacRepo;
 import rs.atekom.infosystem.server.g.partner.GPartnerRepo;
 import rs.atekom.infosystem.server.h.kontakt.HKontaktRepo;
 
@@ -52,10 +47,6 @@ public class DPretplatnikService extends OsnovniService{
 	private HKontaktRepo repoKontakt;
 	@Autowired
 	private GPartnerRepo partnerRepo;
-	@Autowired
-	private ATipBrojacaRepo repoTipBrojaca;
-	@Autowired
-	private FBrojacRepo repoBrojac;
 	
 	//String RESOURCES_DIR = DPretplatnikService.class.getResource("/").getPath();
 	//String RESOURCES_DIR = DPretplatnikService.class.getResource("/D/serverslike/").getPath();
@@ -97,6 +88,7 @@ public class DPretplatnikService extends OsnovniService{
 		return odgovor;
 		}
 	
+	@Transactional
 	public DPretplatnik sacuvajPretplatnika(DPretplatnik pretplatnik) {
 		try {
 			//System.out.println("logo " + pretplatnik.getSlika().length);
@@ -104,21 +96,6 @@ public class DPretplatnikService extends OsnovniService{
 				pretplatnik.setLogo(sacuvajSliku(pretplatnik.getSlika(), pretplatnik.getSlikaIme()));
 				}
 			DPretplatnik pretplatnikSacuvan = repo.save(pretplatnik);
-			if(pretplatnik.getId() == null) {
-				List<ATipBrojaca> tipovi = repoTipBrojaca.findAll();
-				for(ATipBrojaca tip : tipovi) {
-					FBrojac brojac = new FBrojac();
-					brojac.setPretplatnik(pretplatnikSacuvan);
-					brojac.setTip(tip);
-					brojac.setPrefiks("");
-					brojac.setBrojPolja(4);
-					brojac.setStanje(1);
-					brojac.setSufiks("");
-					brojac.setReset(false);
-					brojac.setVerzija(0);
-					repoBrojac.save(brojac);
-				}
-			}
 			return pretplatnikSacuvan;
 			}catch (Exception e) {
 				e.printStackTrace();

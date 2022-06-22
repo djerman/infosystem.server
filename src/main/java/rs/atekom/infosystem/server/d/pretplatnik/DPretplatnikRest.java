@@ -16,14 +16,19 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import rs.atekom.infosystem.baza.a.tipbrojaca.ATipBrojaca;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPodaciZaPretplatnikaOdgovor;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnik;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikOdgovor;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikPodaciOdgovor;
 import rs.atekom.infosystem.baza.e.organizacija.EOrganizacija;
+import rs.atekom.infosystem.baza.f.brojac.FBrojac;
 import rs.atekom.infosystem.baza.i.IAdresa;
 import rs.atekom.infosystem.server.OsnovniRest;
+import rs.atekom.infosystem.server.a.tipbrojaca.ATipBrojacaRepo;
 import rs.atekom.infosystem.server.e.organizacija.EOrganizacijaRepo;
+import rs.atekom.infosystem.server.f.brojac.FBrojacRepo;
 import rs.atekom.infosystem.server.i.adresa.IAdresaRepo;
 
 @RestController
@@ -31,13 +36,17 @@ import rs.atekom.infosystem.server.i.adresa.IAdresaRepo;
 public class DPretplatnikRest extends OsnovniRest{
 
 	@Autowired
-	DPretplatnikRepo repo;
+	private DPretplatnikRepo repo;
 	@Autowired
-	DPretplatnikService service;
+	private DPretplatnikService service;
 	@Autowired
-	EOrganizacijaRepo repoOrganizacija;
+	private EOrganizacijaRepo repoOrganizacija;
 	@Autowired
-	IAdresaRepo repoAdresa;
+	private IAdresaRepo repoAdresa;
+	@Autowired
+	private ATipBrojacaRepo repoTipBrojaca;
+	@Autowired
+	private FBrojacRepo repoBrojac;
 	
 	@PreAuthorize("hasAuthority('SISTEM') || hasAuthority('AGENCIJA')")
 	@GetMapping("/pretplatnici")
@@ -87,7 +96,7 @@ public class DPretplatnikRest extends OsnovniRest{
 								IAdresa adresa = noviPretplatnik.getOrganizacija().getAdresa();
 								adresa.setVerzija(pretplatnik.getVerzija());
 								adresa = repoAdresa.save(adresa);
-								
+								//napravi organizaciju
 								EOrganizacija organizacija = noviPretplatnik.getOrganizacija();
 								organizacija.setVerzija(pretplatnik.getVerzija());
 								organizacija.setAdresa(adresa);
@@ -122,6 +131,22 @@ public class DPretplatnikRest extends OsnovniRest{
 							
 							organizacija.setAdresa(repoAdresa.save(adresa));
 							repoOrganizacija.save(organizacija);
+							//sacuvaj brojace
+							if(pretplatnik.getId() == null) {
+								List<ATipBrojaca> tipovi = repoTipBrojaca.findAll();
+								for(ATipBrojaca tip : tipovi) {
+									FBrojac brojac = new FBrojac();
+									brojac.setPretplatnik(pretplatnik);
+									brojac.setTip(tip);
+									brojac.setPrefiks("");
+									brojac.setBrojPolja(4);
+									brojac.setStanje(1);
+									brojac.setSufiks("");
+									brojac.setReset(false);
+									brojac.setVerzija(0);
+									repoBrojac.save(brojac);
+								}
+							}
 							
 							return new ResponseEntity<DPretplatnikOdgovor>(service.lista(null, null), HttpStatus.ACCEPTED);
 							}else {
