@@ -21,8 +21,11 @@ public interface JArtikalRepo extends PagingAndSortingRepository<JArtikal, Long>
 	
 	public List<JArtikal> findByPretplatnikAndSifraAndIzbrisanFalse(DPretplatnik pretplatnik, String sifra);
 	
+	public List<JArtikal> findByPretplatnikAndNazivAndIzbrisanFalse(DPretplatnik pretplatnik, String naziv);
+	
 	@Query(value = "SELECT a from JArtikal AS a"
 			+ " WHERE a.pretplatnik.id = :pretplatnikId AND a.izbrisan = 0"
+			+ " AND (:tip IS NULL OR a.tip = :tip)"
 			+ " AND (:pretraga IS NULL"
 			+ " OR (lower(a.sifra) LIKE lower(concat('%',:pretraga,'%'))"
 			+ " OR lower(a.naziv) LIKE lower(concat('%',:pretraga,'%'))"
@@ -30,6 +33,8 @@ public interface JArtikalRepo extends PagingAndSortingRepository<JArtikal, Long>
 			+ " OR lower(a.opis) like lower(concat('%',:pretraga,'%')))"
 			+ ")"
 			+ " ORDER BY a.sifra ASC")
-	public Page<JArtikal> pretragaArtikalaPretplatnika(@Param("pretplatnikId") Long pretplatnikId, @Param("pretraga") String pretraga, Pageable pageable);
+	public Page<JArtikal> pretragaArtikalaPretplatnika(@Param("pretplatnikId") Long pretplatnikId, @Param("pretraga") String pretraga, @Param("tip") Integer tip, Pageable pageable);
+	
+	
 	
 }

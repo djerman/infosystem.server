@@ -19,7 +19,8 @@ import rs.atekom.infosystem.baza.a.agencija.AAgencija;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPodaciZaPretplatnikaOdgovor;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnik;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikOdgovor;
-import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikPodaciOdgovor;
+import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikPodaci;
+import rs.atekom.infosystem.baza.e.organizacija.EOrganizacijaPodaci;
 import rs.atekom.infosystem.baza.g.GPartnerOdgovor;
 import rs.atekom.infosystem.baza.h.HKontakt;
 import rs.atekom.infosystem.server.OsnovniService;
@@ -29,6 +30,7 @@ import rs.atekom.infosystem.server.c.mesto.CMestoRepo;
 import rs.atekom.infosystem.server.e.organizacija.EOrganizacijaRepo;
 import rs.atekom.infosystem.server.g.partner.GPartnerRepo;
 import rs.atekom.infosystem.server.h.kontakt.HKontaktRepo;
+import rs.atekom.infosystem.server.i.adresa.IAdresaRepo;
 
 @Service(value = "pretplatnikService")
 public class DPretplatnikService extends OsnovniService{
@@ -47,6 +49,8 @@ public class DPretplatnikService extends OsnovniService{
 	private HKontaktRepo repoKontakt;
 	@Autowired
 	private GPartnerRepo partnerRepo;
+	@Autowired
+	private IAdresaRepo repoAdresa;
 	
 	//String RESOURCES_DIR = DPretplatnikService.class.getResource("/").getPath();
 	//String RESOURCES_DIR = DPretplatnikService.class.getResource("/D/serverslike/").getPath();
@@ -66,15 +70,18 @@ public class DPretplatnikService extends OsnovniService{
 				agencija = repoAgencija.findById(id).get();
 				}
 			List<DPretplatnik> pretplatnici = repo.pretraga(pojam, agencija);
-			List<DPretplatnikPodaciOdgovor> saPodacima = new ArrayList<DPretplatnikPodaciOdgovor>();
+			List<DPretplatnikPodaci> pretplatniciSaPodacima = new ArrayList<DPretplatnikPodaci>();
 			for(DPretplatnik pr : pretplatnici) {
-				DPretplatnikPodaciOdgovor podaci = new DPretplatnikPodaciOdgovor();
+				DPretplatnikPodaci pretplatnikSaPodacima = new DPretplatnikPodaci();
 				postaviLogo(pr, pr.getLogo());
-				podaci.setPretplatnik(pr);
-				podaci.setOrganizacija(repoOrganizacija.findTopByPretplatnikAndSedisteTrue(pr));
-				saPodacima.add(podaci);
+				pretplatnikSaPodacima.setPretplatnik(pr);
+				EOrganizacijaPodaci organizacijaPodaci = new EOrganizacijaPodaci();
+				organizacijaPodaci.setOrganizacija(repoOrganizacija.findTopByPretplatnikAndSedisteTrue(pr));
+				organizacijaPodaci.setSediste(repoAdresa.findTopByOrganizacijaAndIzbrisanFalseAndSedisteTrue(organizacijaPodaci.getOrganizacija()));
+				pretplatnikSaPodacima.setOrganizacijaPodaci(organizacijaPodaci);
+				pretplatniciSaPodacima.add(pretplatnikSaPodacima);
 				}
-			odgovor.setListaSaPodacima(saPodacima);
+			odgovor.setListaSaPodacima(pretplatniciSaPodacima);
 			}catch (Exception e) {
 				e.printStackTrace();
 				}

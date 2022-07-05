@@ -2,6 +2,8 @@ package rs.atekom.infosystem.server.j.artikal;
 
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,9 +31,9 @@ public class JArtikalRest extends OsnovniRest{
 	@PreAuthorize("hasAuthority('AGENCIJA') || hasAuthority('ADMINISTRATOR') || hasAuthority('KORISNIK')")
 	@GetMapping("/artikli")
 	public ResponseEntity<JArtikalOdgovor> lista(@RequestParam(value = "pretplatnikId") Long pretplatnikId, @RequestParam(value = "pretraga") Optional<String> pretraga,
-			@RequestParam() int strana){
+			@RequestParam("tip") Optional<Integer> tip, @RequestParam("strana") int strana){
 		try {
-			return new ResponseEntity<JArtikalOdgovor>(service.vratiListuPoPretplatniku(pretplatnikId, pretraga, strana), HttpStatus.ACCEPTED);
+			return new ResponseEntity<JArtikalOdgovor>(service.vratiListuPoPretplatniku(pretplatnikId, pretraga, tip, strana), HttpStatus.ACCEPTED);
 		}catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -40,7 +42,7 @@ public class JArtikalRest extends OsnovniRest{
 	
 	@PreAuthorize("hasAuthority('AGENCIJA') || hasAuthority('ADMINISTRATOR')")
 	@PutMapping("/artikal/")
-	public ResponseEntity<JArtikalOdgovor> snimi(@RequestBody JArtikal artikal){
+	public ResponseEntity<JArtikalOdgovor> snimi(@RequestBody @Valid JArtikal artikal){
 		return service.snimiArtikal(artikal);
 	}
 	

@@ -16,12 +16,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import rs.atekom.infosystem.baza.a.tipbrojaca.ATipBrojaca;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPodaciZaPretplatnikaOdgovor;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnik;
 import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikOdgovor;
-import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikPodaciOdgovor;
+import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnikPodaci;
 import rs.atekom.infosystem.baza.e.organizacija.EOrganizacija;
 import rs.atekom.infosystem.baza.f.brojac.FBrojac;
 import rs.atekom.infosystem.baza.i.IAdresa;
@@ -74,7 +73,7 @@ public class DPretplatnikRest extends OsnovniRest{
 	@PreAuthorize("hasAuthority('SISTEM')")
 	@PutMapping("/pretplatnik/snimi")
 	@Transactional
-	public ResponseEntity<DPretplatnikOdgovor> snimiIzmeni(@RequestBody DPretplatnikPodaciOdgovor noviPretplatnik){
+	public ResponseEntity<DPretplatnikOdgovor> snimiIzmeni(@RequestBody DPretplatnikPodaci noviPretplatnik){
 		List<DPretplatnik> lista = new ArrayList<DPretplatnik>();
 		lista.addAll(repo.pretragaSvih(noviPretplatnik.getPretplatnik().getMb()));
 		if(repo.pretragaSvih(noviPretplatnik.getPretplatnik().getPib()) != null && repo.pretragaSvih(noviPretplatnik.getPretplatnik().getPib()).size() > 0) {
@@ -93,15 +92,15 @@ public class DPretplatnikRest extends OsnovniRest{
 								pretplatnik.setVerzija(pretplatnik.getVerzija() + 1);
 								pretplatnik = service.sacuvajPretplatnika(pretplatnik);
 								
-								IAdresa adresa = noviPretplatnik.getOrganizacija().getAdresa();
-								adresa.setVerzija(pretplatnik.getVerzija());
-								adresa = repoAdresa.save(adresa);
-								//napravi organizaciju
-								EOrganizacija organizacija = noviPretplatnik.getOrganizacija();
-								organizacija.setVerzija(pretplatnik.getVerzija());
-								organizacija.setAdresa(adresa);
-								organizacija = repoOrganizacija.save(organizacija);
+								IAdresa adresa = noviPretplatnik.getOrganizacijaPodaci() == null ? null : noviPretplatnik.getOrganizacijaPodaci().getSediste();
+								adresa.setVerzija(noviPretplatnik.getOrganizacijaPodaci().getSediste().getVerzija());
 								
+								//napravi organizaciju
+								EOrganizacija organizacija = noviPretplatnik.getOrganizacijaPodaci().getOrganizacija();
+								organizacija.setVerzija(pretplatnik.getVerzija());
+								//organizacija.setAdresa(adresa);
+								adresa.setOrganizacija(repoOrganizacija.save(organizacija));
+								adresa = repoAdresa.save(adresa);
 								return new ResponseEntity<DPretplatnikOdgovor>(service.lista(null, null), HttpStatus.ACCEPTED);
 								}else {
 									return new ResponseEntity<DPretplatnikOdgovor>(HttpStatus.MULTI_STATUS);
@@ -113,8 +112,8 @@ public class DPretplatnikRest extends OsnovniRest{
 					.orElseGet(() -> {
 						if(lista.size() < 1) {
 							DPretplatnik pretplatnik = noviPretplatnik.getPretplatnik();
-							EOrganizacija organizacija = noviPretplatnik.getOrganizacija();
-							IAdresa adresa = organizacija.getAdresa();
+							EOrganizacija organizacija = noviPretplatnik.getOrganizacijaPodaci().getOrganizacija();
+							IAdresa adresa =  noviPretplatnik.getOrganizacijaPodaci().getSediste();
 							
 							pretplatnik.setIzbrisan(false);
 							pretplatnik.setVerzija(0);
@@ -123,14 +122,15 @@ public class DPretplatnikRest extends OsnovniRest{
 							adresa.setPretplatnik(pretplatnik);
 							adresa.setIzbrisan(false);
 							adresa.setVerzija(0);
+							adresa.setIzbrisan(false);
 							
 							organizacija.setPretplatnik(pretplatnik);
 							organizacija.setIzbrisan(false);
 							organizacija.setSediste(true);
 							organizacija.setVerzija(0);
-							
-							organizacija.setAdresa(repoAdresa.save(adresa));
-							repoOrganizacija.save(organizacija);
+
+							adresa.setOrganizacija(repoOrganizacija.save(organizacija));
+							repoAdresa.save(adresa);
 							//sacuvaj brojace
 							if(pretplatnik.getId() == null) {
 								List<ATipBrojaca> tipovi = repoTipBrojaca.findAll();
@@ -168,7 +168,7 @@ public class DPretplatnikRest extends OsnovniRest{
 			List<EOrganizacija> organizacije = repoOrganizacija.findByPretplatnik(pretplatnik);
 			List<IAdresa> adrese = new ArrayList<IAdresa>();
 			for(EOrganizacija org : organizacije) {
-				adrese.add(org.getAdresa());
+				adrese.add(repoAdresa.findTopByOrganizacijaAndIzbrisanFalseAndSedisteTrue(org));
 				}
 			try {
 				repoOrganizacija.deleteAll(organizacije);

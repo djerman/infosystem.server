@@ -18,7 +18,7 @@ import rs.atekom.infosystem.server.OsnovniRest;
 public class EOrganizacijaRest extends OsnovniRest{
 
 	@Autowired
-	EOrganizacijaService service;
+	private EOrganizacijaService service;
 	
 	//zabraniti listanje (a odnosi se i na upis/izmenu/brisanje) ako pretplatnik ne odgovara dodeljenom za agenciju i administratoru
 	@PreAuthorize("hasAuthority('SISTEM') || (hasAuthority('AGENCIJA') && #pretplatnik != null) || (hasAuthority('ADMINISTRATOR') && #pretplatnik != null)")
