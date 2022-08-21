@@ -19,7 +19,7 @@ import rs.atekom.infosystem.server.OsnovniRest;
 public class DKontoKlasaRest extends OsnovniRest{
 
 	@Autowired
-	DKontoKlasaService service;
+	private DKontoKlasaService service;
 	
 	@PreAuthorize("hasAuthority('SISTEM') || hasAuthority('AGENCIJA') || hasAuthority('ADMINISTRATOR')")
 	@GetMapping("/klasekonta")

@@ -11,4 +11,6 @@ public interface FGrupaPartneraRepo extends PagingAndSortingRepository<FGrupaPar
 
 	public List<FGrupaPartnera> findByPretplatnikAndIzbrisanFalseOrderByNazivAsc(DPretplatnik pretplatnik);
 	
+	public List<FGrupaPartnera> findByPretplatnikAndIzbrisanFalseAndSifraOrNaziv(DPretplatnik pretplatnik, String sifra, String naziv);
+	
 	}

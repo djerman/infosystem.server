@@ -12,7 +12,7 @@ import rs.atekom.infosystem.server.OsnovniService;
 public class DAKontoGrupaService extends OsnovniService{
 
 	@Autowired
-	DAKontoGrupaRepo repo;
+	private DAKontoGrupaRepo repo;
 	
 	public DAKontoGrupaOdgovor lista() {
 		return new DAKontoGrupaOdgovor(repo.findAllByOrderBySifraAsc());

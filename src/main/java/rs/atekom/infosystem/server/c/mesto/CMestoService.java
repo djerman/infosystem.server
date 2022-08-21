@@ -16,11 +16,11 @@ import rs.atekom.infosystem.server.b.opstina.BOpstinaRepo;
 public class CMestoService extends OsnovniService{
 
 	@Autowired
-	CMestoRepo repo;
+	private CMestoRepo repo;
 	@Autowired
-	ADrzavaRepo repoDrzava;
+	private ADrzavaRepo repoDrzava;
 	@Autowired
-	BOpstinaRepo repoOpstina;
+	private BOpstinaRepo repoOpstina;
 	
 	public CMestoOdgovor listaPoDrzavi(Long drzavaId) {
 		CMestoOdgovor odgovor = new CMestoOdgovor();

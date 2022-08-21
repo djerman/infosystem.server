@@ -27,6 +27,7 @@ import rs.atekom.infosystem.baza.i.IAdresa;
 import rs.atekom.infosystem.server.OsnovniRest;
 import rs.atekom.infosystem.server.a.tipbrojaca.ATipBrojacaRepo;
 import rs.atekom.infosystem.server.e.organizacija.EOrganizacijaRepo;
+import rs.atekom.infosystem.server.e.organizacija.EOrganizacijaService;
 import rs.atekom.infosystem.server.f.brojac.FBrojacRepo;
 import rs.atekom.infosystem.server.i.adresa.IAdresaRepo;
 
@@ -40,6 +41,8 @@ public class DPretplatnikRest extends OsnovniRest{
 	private DPretplatnikService service;
 	@Autowired
 	private EOrganizacijaRepo repoOrganizacija;
+	@Autowired
+	private EOrganizacijaService serviceOrganizacija;
 	@Autowired
 	private IAdresaRepo repoAdresa;
 	@Autowired
@@ -99,7 +102,7 @@ public class DPretplatnikRest extends OsnovniRest{
 								EOrganizacija organizacija = noviPretplatnik.getOrganizacijaPodaci().getOrganizacija();
 								organizacija.setVerzija(pretplatnik.getVerzija());
 								//organizacija.setAdresa(adresa);
-								adresa.setOrganizacija(repoOrganizacija.save(organizacija));
+								adresa.setOrganizacija(serviceOrganizacija.sacuvajSediste(organizacija));
 								adresa = repoAdresa.save(adresa);
 								return new ResponseEntity<DPretplatnikOdgovor>(service.lista(null, null), HttpStatus.ACCEPTED);
 								}else {
@@ -129,7 +132,7 @@ public class DPretplatnikRest extends OsnovniRest{
 							organizacija.setSediste(true);
 							organizacija.setVerzija(0);
 
-							adresa.setOrganizacija(repoOrganizacija.save(organizacija));
+							adresa.setOrganizacija(serviceOrganizacija.sacuvajSediste(organizacija));
 							repoAdresa.save(adresa);
 							//sacuvaj brojace
 							if(pretplatnik.getId() == null) {
@@ -165,7 +168,7 @@ public class DPretplatnikRest extends OsnovniRest{
 	public ResponseEntity<DPretplatnikOdgovor>  brisi(@PathVariable Long id){
 		DPretplatnik pretplatnik = repo.findById(id).get();
 		if(pretplatnik != null) {
-			List<EOrganizacija> organizacije = repoOrganizacija.findByPretplatnik(pretplatnik);
+			List<EOrganizacija> organizacije = repoOrganizacija.findByPretplatnikAndIzbrisanFalse(pretplatnik);
 			List<IAdresa> adrese = new ArrayList<IAdresa>();
 			for(EOrganizacija org : organizacije) {
 				adrese.add(repoAdresa.findTopByOrganizacijaAndIzbrisanFalseAndSedisteTrue(org));

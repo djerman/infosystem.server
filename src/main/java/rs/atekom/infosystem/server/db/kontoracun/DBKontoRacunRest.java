@@ -19,11 +19,9 @@ import rs.atekom.infosystem.server.OsnovniRest;
 public class DBKontoRacunRest extends OsnovniRest{
 
 	@Autowired
-	DBKontoRacunService service;
+	public DBKontoRacunService service;
 	
-	@PreAuthorize("hasAuthority('SISTEM')"
-			+ " || hasAuthority('AGENCIJA')"
-			+ " || hasAuthority('ADMINISTRATOR')")
+	@PreAuthorize("hasAuthority('SISTEM') || hasAuthority('AGENCIJA') || hasAuthority('ADMINISTRATOR')")
 	@GetMapping("/racunikonta")
 	public ResponseEntity<DBKontoRacunOdgovor> pretraga(@RequestParam(value = "pretraga") Optional<String> pretraga, 
 			@RequestParam("grupaId") Optional<Long> grupa){

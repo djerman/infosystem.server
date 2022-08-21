@@ -19,7 +19,7 @@ import rs.atekom.infosystem.server.OsnovniRest;
 public class DAKontoGrupaRest extends OsnovniRest{
 
 	@Autowired
-	DAKontoGrupaService service;
+	private DAKontoGrupaService service;
 	
 	@PreAuthorize("hasAuthority('SISTEM') || hasAuthority('AGENCIJA') || hasAuthority('ADMINISTRATOR')")
 	@GetMapping("/grupekonta")

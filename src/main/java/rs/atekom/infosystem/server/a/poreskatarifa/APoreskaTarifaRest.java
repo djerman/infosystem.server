@@ -14,7 +14,7 @@ import rs.atekom.infosystem.baza.a.poreskatarifa.APoreskaTarifaOdgovor;
 public class APoreskaTarifaRest {
 
 	@Autowired
-	APoreskaTarifaRepo repo;
+	private APoreskaTarifaRepo repo;
 	
 	@GetMapping("/poresketarife")
 	public ResponseEntity<APoreskaTarifaOdgovor> lista(){

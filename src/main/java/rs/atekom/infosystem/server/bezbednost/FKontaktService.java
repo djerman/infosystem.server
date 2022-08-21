@@ -14,7 +14,7 @@ public class FKontaktService {
 	@Autowired
 	private HKontaktRepo repo;
 	
-	FKontaktService(HKontaktRepo repo){
+	public FKontaktService(HKontaktRepo repo){
 		this.repo = repo;
 		}
 	

@@ -25,9 +25,9 @@ import rs.atekom.infosystem.server.OsnovniRest;
 public class ADrzavaRest extends OsnovniRest{
 
 	@Autowired
-	ADrzavaRepo repo;
+	private ADrzavaRepo repo;
 	@Autowired
-	ADrzavaService service;
+	private ADrzavaService service;
 	
 	@GetMapping("/drzave")
 	public ResponseEntity<ADrzavaOdgovor> pretraga(@RequestParam(value = "pretraga") Optional<String> pretraga){

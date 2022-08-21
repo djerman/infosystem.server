@@ -14,7 +14,7 @@ import rs.atekom.infosystem.server.OsnovniRest;
 public class HKontaktRest extends OsnovniRest{
 
 	@Autowired
-	HKontaktRepo repo;
+	private HKontaktRepo repo;
 	
 	@GetMapping(value = "/kontakti", params = "korisnicko")
 	public HKontakt korisnicko(@RequestParam String korisnicko){

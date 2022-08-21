@@ -14,19 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 import rs.atekom.infosystem.baza.g.GPartnerOdgovor;
 import rs.atekom.infosystem.baza.g.GPartnerOdgovorPodaci;
 import rs.atekom.infosystem.server.OsnovniRest;
-import rs.atekom.infosystem.server.a.agencija.AAgencijaRepo;
-import rs.atekom.infosystem.server.d.pretplatnik.DPretplatnikRepo;
 
 @RestController
 @Validated
 public class GPartnerRest extends OsnovniRest{
 
 	@Autowired
-	GPartnerService service;
-	@Autowired
-	AAgencijaRepo agencijaRepo;
-	@Autowired
-	DPretplatnikRepo pretplatnikRepo;
+	private GPartnerService service;
 
 	@PreAuthorize("hasAuthority('SISTEM')"
 			+ " || (hasAuthority('AGENCIJA') && @pretplatnikService.proveraZaAgenciju(authentication.principal.username, #pretplatnikId))"

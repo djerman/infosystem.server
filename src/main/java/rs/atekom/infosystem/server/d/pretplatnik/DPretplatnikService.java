@@ -76,7 +76,7 @@ public class DPretplatnikService extends OsnovniService{
 				postaviLogo(pr, pr.getLogo());
 				pretplatnikSaPodacima.setPretplatnik(pr);
 				EOrganizacijaPodaci organizacijaPodaci = new EOrganizacijaPodaci();
-				organizacijaPodaci.setOrganizacija(repoOrganizacija.findTopByPretplatnikAndSedisteTrue(pr));
+				organizacijaPodaci.setOrganizacija(repoOrganizacija.findTopByPretplatnikAndSedisteTrueAndIzbrisanFalse(pr));
 				organizacijaPodaci.setSediste(repoAdresa.findTopByOrganizacijaAndIzbrisanFalseAndSedisteTrue(organizacijaPodaci.getOrganizacija()));
 				pretplatnikSaPodacima.setOrganizacijaPodaci(organizacijaPodaci);
 				pretplatniciSaPodacima.add(pretplatnikSaPodacima);

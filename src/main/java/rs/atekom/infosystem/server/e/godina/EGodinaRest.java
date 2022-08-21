@@ -22,11 +22,9 @@ import rs.atekom.infosystem.server.OsnovniRest;
 public class EGodinaRest extends OsnovniRest{
 
 	@Autowired
-	EGodinaService service;
+	private EGodinaService service;
 	
-	@PreAuthorize("hasAuthority('SISTEM')"
-			+ " || hasAuthority('AGENCIJA')"
-			+ " || hasAuthority('ADMINISTRATOR')")
+	@PreAuthorize("hasAuthority('SISTEM') || hasAuthority('AGENCIJA') || hasAuthority('ADMINISTRATOR')")
 	@GetMapping("/godine")
 	public ResponseEntity<EGodinaOdgovor> sve(){
 		try {

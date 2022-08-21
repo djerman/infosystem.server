@@ -16,7 +16,7 @@ import rs.atekom.infosystem.server.OsnovniRest;
 public class ETipDokumentaRest extends OsnovniRest{
 
 	@Autowired
-	ETipDokumentaService service;
+	private ETipDokumentaService service;
 	
 	//@PreAuthorize("hasAuthority('SISTEM') || hasAuthority('AGENCIJA') || hasAuthority('ADMINISTRATOR')")
 	@GetMapping("/tipdokumenta")

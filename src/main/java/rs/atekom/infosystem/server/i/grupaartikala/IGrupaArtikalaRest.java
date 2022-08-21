@@ -20,7 +20,7 @@ import rs.atekom.infosystem.server.OsnovniRest;
 public class IGrupaArtikalaRest extends OsnovniRest{
 
 	@Autowired
-	IGrupaArtikalaService service;
+	private IGrupaArtikalaService service;
 	
 	@PreAuthorize("hasAuthority('SISTEM')"
 			+ " || hasAuthority('AGENCIJA')"

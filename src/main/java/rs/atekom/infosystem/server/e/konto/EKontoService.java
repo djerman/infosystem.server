@@ -12,7 +12,7 @@ import rs.atekom.infosystem.server.OsnovniService;
 public class EKontoService extends OsnovniService{
 
 	@Autowired
-	EKontoRepo repo;
+	private EKontoRepo repo;
 	
 	public EKontoOdgovor lista() {
 		return new EKontoOdgovor(repo.findByIzbrisanFalseOrderBySifraAsc());

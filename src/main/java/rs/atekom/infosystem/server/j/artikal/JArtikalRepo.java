@@ -35,6 +35,6 @@ public interface JArtikalRepo extends PagingAndSortingRepository<JArtikal, Long>
 			+ " ORDER BY a.sifra ASC")
 	public Page<JArtikal> pretragaArtikalaPretplatnika(@Param("pretplatnikId") Long pretplatnikId, @Param("pretraga") String pretraga, @Param("tip") Integer tip, Pageable pageable);
 	
-	
+	public List<JArtikal> findByPretplatnikAndIzbrisanFalseAndSifraOrNaziv(DPretplatnik pretplatnik, String Sifra, String naziv);
 	
 }

@@ -26,9 +26,9 @@ import rs.atekom.infosystem.server.OsnovniRest;
 public class CMestoRest extends OsnovniRest{
 
 	@Autowired
-	CMestoRepo repo;
+	private CMestoRepo repo;
 	@Autowired
-	CMestoService service;
+	private CMestoService service;
 	
 	/**
 	 * preuzimanje mesta po drzavi

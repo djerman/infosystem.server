@@ -24,14 +24,14 @@ import rs.atekom.infosystem.baza.a.jedinicamere.AJedinicaMereOdgovor;
 public class AJedinicaMereRest {
 
 	@Autowired
-	AJedinicaMereRepo repo;
+	private AJedinicaMereRepo repo;
 	@Autowired
-	AJedinicaMereService service;
+	private AJedinicaMereService service;
 	
 	@GetMapping("/jedinice")
 	public ResponseEntity<AJedinicaMereOdgovor> lista(){
 		try {
-			return new ResponseEntity<AJedinicaMereOdgovor>(new AJedinicaMereOdgovor(repo.findByIzbrisanFalse()), HttpStatus.ACCEPTED);
+			return new ResponseEntity<AJedinicaMereOdgovor>(service.lista(), HttpStatus.ACCEPTED);
 			}catch (Exception e) {
 				e.printStackTrace();
 				return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

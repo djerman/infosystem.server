@@ -16,9 +16,9 @@ import rs.atekom.infosystem.server.d.pretplatnik.DPretplatnikRepo;
 public class EGodinaService {
 
 	@Autowired
-	EGodinaRepo repo;
+	private EGodinaRepo repo;
 	@Autowired
-	DPretplatnikRepo repoPretplatnik;
+	private DPretplatnikRepo repoPretplatnik;
 	
 	public EGodinaOdgovor lista(Long pretplatnikId) {
 		EGodinaOdgovor odgovor = new EGodinaOdgovor();

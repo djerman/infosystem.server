@@ -9,7 +9,7 @@ import rs.atekom.infosystem.server.OsnovniService;
 public class AJedinicaMereService extends OsnovniService{
 
 	@Autowired
-	AJedinicaMereRepo repo;
+	private AJedinicaMereRepo repo;
 	
 	public AJedinicaMereOdgovor lista() {
 		AJedinicaMereOdgovor odgovor = new AJedinicaMereOdgovor();

@@ -13,4 +13,6 @@ public interface IGrupaArtikalaRepo extends PagingAndSortingRepository<IGrupaArt
 
 	public List<IGrupaArtikala> findByPretplatnikAndIzbrisanFalseOrderByNazivAsc(DPretplatnik pretplatnik);
 	
+	public List<IGrupaArtikala> findByPretplatnikAndIzbrisanFalseAndSifraAndNaziv(DPretplatnik pretplatnik, String sifra, String naziv);
+	
 	}

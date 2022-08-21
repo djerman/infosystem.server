@@ -19,10 +19,9 @@ import rs.atekom.infosystem.server.OsnovniRest;
 public class APravaRest extends OsnovniRest{
 
 	@Autowired
-	APravaService service;
+	private APravaService service;
 	
-	@PreAuthorize("hasAuthority('SISTEM')"
-			+ " || hasAuthority('ADMINISTRATOR')")
+	@PreAuthorize("hasAuthority('SISTEM') || hasAuthority('ADMINISTRATOR')")
 	@GetMapping("/prava")
 	public ResponseEntity<APravaOdgovor> pretraga(@RequestParam(value = "pretraga") Optional<String> pretraga){
 		try {

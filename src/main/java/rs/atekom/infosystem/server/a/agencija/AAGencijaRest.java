@@ -26,9 +26,9 @@ import rs.atekom.infosystem.server.OsnovniRest;
 public class AAGencijaRest extends OsnovniRest{
 
 	@Autowired
-	AAgencijaRepo repo;
+	private AAgencijaRepo repo;
 	@Autowired
-	AAgencijaService service;
+	private AAgencijaService service;
 	
 	@PreAuthorize("hasAuthority('SISTEM')")
 	@GetMapping("/agencije")

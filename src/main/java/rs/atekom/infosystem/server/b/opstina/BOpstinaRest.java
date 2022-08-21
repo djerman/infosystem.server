@@ -26,9 +26,9 @@ import rs.atekom.infosystem.server.OsnovniRest;
 public class BOpstinaRest extends OsnovniRest{
 
 	@Autowired
-	BOpstinaRepo repo;
+	private BOpstinaRepo repo;
 	@Autowired
-	BOpstinaService service;
+	private BOpstinaService service;
 	
 	/**
 	 * vraća listu opština prema izabranoj državi

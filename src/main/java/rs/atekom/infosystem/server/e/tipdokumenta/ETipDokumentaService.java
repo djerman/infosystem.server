@@ -12,7 +12,7 @@ import rs.atekom.infosystem.server.OsnovniService;
 public class ETipDokumentaService extends OsnovniService{
 
 	@Autowired
-	ETipDokumentaRepo repo;
+	private ETipDokumentaRepo repo;
 	
 	public ETipDokumentaOdgovor lista() {
 		return new ETipDokumentaOdgovor(repo.findByIzbrisanFalseOrderBySifraAsc());

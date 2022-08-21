@@ -8,13 +8,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import rs.atekom.infosystem.baza.f.brojac.FBrojac;
 import rs.atekom.infosystem.baza.g.GPartner;
 import rs.atekom.infosystem.baza.g.GPartnerOdgovor;
 import rs.atekom.infosystem.baza.g.GPartnerOdgovorPodaci;
 import rs.atekom.infosystem.baza.i.IAdresa;
 import rs.atekom.infosystem.server.OsnovniService;
+import rs.atekom.infosystem.server.a.tipbrojaca.ATipBrojacaRepo;
 import rs.atekom.infosystem.server.c.mesto.CMestoRepo;
 import rs.atekom.infosystem.server.d.pretplatnik.DPretplatnikRepo;
+import rs.atekom.infosystem.server.f.brojac.FBrojacRepo;
 import rs.atekom.infosystem.server.f.grupapartnera.FGrupaPartneraRepo;
 import rs.atekom.infosystem.server.f.preduzece.FPreduzeceRepo;
 import rs.atekom.infosystem.server.i.adresa.IAdresaRepo;
@@ -34,6 +38,10 @@ public class GPartnerService extends OsnovniService{
 	FPreduzeceRepo repoPreduzece;
 	@Autowired
 	IAdresaRepo repoAdresa;
+	@Autowired
+	private FBrojacRepo repoBrojac;
+	@Autowired
+	private ATipBrojacaRepo repoTipBrojaca;
 	
 	@Transactional
 	public ResponseEntity<GPartnerOdgovor> snimiPreduzece(GPartnerOdgovorPodaci noviPodaciPartnera, Optional<Boolean> kupac){
@@ -46,7 +54,15 @@ public class GPartnerService extends OsnovniService{
 						.map(partner -> {
 							if(lista != null && lista.size() == 1 && lista.get(0).getId().equals(partner.getId())) {
 								if(partner.getVerzija().equals(noviPartner.getVerzija())) {
-
+									if(noviPartner.getSifra() == null || !noviPartner.getSifra().equals("")
+											|| noviPartner.getSifra().isBlank() || noviPartner.getSifra().isEmpty()) {
+										if(partner.getSifra() != null && !partner.getSifra().equals("")
+												&& !partner.getSifra().isBlank() && !partner.getSifra().isEmpty()) {
+											noviPartner.setSifra(partner.getSifra());
+										}else {
+											postaviBrojac(noviPartner);
+										}
+									}
 									partner.setGrupaPartnera(noviPartner.getGrupaPartnera());
 									partner.setSifra(noviPartner.getSifra());
 									partner.setKupac(noviPartner.getKupac());
@@ -85,10 +101,12 @@ public class GPartnerService extends OsnovniService{
 							if(lista != null && lista.size() > 0) {
 								return new ResponseEntity<GPartnerOdgovor>(HttpStatus.ALREADY_REPORTED);
 								}else {
+									if(noviPartner.getSifra() == null || !noviPartner.getSifra().equals("")
+											|| noviPartner.getSifra().isBlank() || noviPartner.getSifra().isEmpty()) 
+										postaviBrojac(noviPartner);
 									noviPartner.setId(null);
 									noviPartner.setIzbrisan(false);
 									noviPartner.setVerzija(0);
-									
 									noviPartner.getPreduzece().setVerzija(0);
 									noviPartner.getPreduzece().setIzbrisan(false);
 									Long pretplatnik = repo.save(noviPartner).getPretplatnik().getId();
@@ -176,4 +194,12 @@ public class GPartnerService extends OsnovniService{
 				}
 		}
 	
+	private void postaviBrojac(GPartner partner) {
+		FBrojac brojac = repoBrojac.findByPretplatnikAndTip(partner.getPretplatnik(), repoTipBrojaca.findByTip(12));
+		String broj = String.format("%0" + brojac.getBrojPolja() + "d", brojac.getStanje());
+		partner.setSifra(broj);
+		brojac.setStanje(brojac.getStanje() + 1);
+		repoBrojac.save(brojac);
 	}
+	
+}

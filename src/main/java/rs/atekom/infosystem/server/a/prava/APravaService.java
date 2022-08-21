@@ -12,7 +12,7 @@ public class APravaService extends OsnovniService{
 	@Autowired
 	private APravaRepo repo;
 	
-	//pretraga mora biti uskđaena da 'tip' - integer odnosno nivoom prava koje ima onaj koji pretražuje
+	//pretraga mora biti usklađena sa 'tip' - integer odnosno nivoom prava koje ima onaj koji pretražuje
 	public APravaOdgovor listaPrava(Optional<String> pretraga){
 		try {
 			APravaOdgovor odgovor = new APravaOdgovor();

@@ -7,6 +7,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnik;
 import rs.atekom.infosystem.baza.db.kontoracun.DBKontoRacun;
 import rs.atekom.infosystem.baza.e.konto.EKonto;
 
@@ -14,6 +15,10 @@ import rs.atekom.infosystem.baza.e.konto.EKonto;
 public interface EKontoRepo extends PagingAndSortingRepository<EKonto, Long>{
 
 	public List<EKonto> findByIzbrisanFalseOrderBySifraAsc();
+	
+	public List<EKonto> findByPretplatnikAndIzbrisanFalseOrderBySifraAsc(DPretplatnik pretplatnik);
+	
+	public List<EKonto> findByPretplatnikOrPretplatnikIsNullAndIzbrisanFalseOrderBySifraAsc(DPretplatnik pretplatnik);
 	
 	public List<EKonto> findByPodgrupaAndIzbrisanFalseOrderBySifraAsc(DBKontoRacun podgrupa);
 	

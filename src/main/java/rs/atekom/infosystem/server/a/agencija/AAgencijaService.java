@@ -12,7 +12,7 @@ import rs.atekom.infosystem.server.OsnovniService;
 public class AAgencijaService extends OsnovniService{
 
 	@Autowired
-	AAgencijaRepo repo;
+	private AAgencijaRepo repo;
 	
 	public AAgencijaOdgovor napraviOdgovorSaListom(Optional<String> pretraga) {
 		try {

@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnik;
 import rs.atekom.infosystem.baza.f.brojac.FBrojac;
 import rs.atekom.infosystem.baza.j.JArtikal;
 import rs.atekom.infosystem.baza.j.JArtikalOdgovor;
@@ -20,6 +22,7 @@ import rs.atekom.infosystem.server.a.jedinicamere.AJedinicaMereRepo;
 import rs.atekom.infosystem.server.a.poreskatarifa.APoreskaTarifaRepo;
 import rs.atekom.infosystem.server.a.tipbrojaca.ATipBrojacaRepo;
 import rs.atekom.infosystem.server.d.pretplatnik.DPretplatnikRepo;
+import rs.atekom.infosystem.server.e.konto.EKontoRepo;
 import rs.atekom.infosystem.server.f.brojac.FBrojacRepo;
 import rs.atekom.infosystem.server.i.grupaartikala.IGrupaArtikalaRepo;
 
@@ -40,6 +43,8 @@ public class JArtikalService extends OsnovniService{
 	private FBrojacRepo repoBrojac;
 	@Autowired
 	private ATipBrojacaRepo repoTipBrojaca;
+	@Autowired
+	private EKontoRepo repoKonto;
 	
 	public JArtikalOdgovor vratiListuPoPretplatniku(Long pretplatnikId, Optional<String> pretraga, Optional<Integer> tip, int strana) {
 		JArtikalOdgovor odgovor = new JArtikalOdgovor();
@@ -59,7 +64,9 @@ public class JArtikalService extends OsnovniService{
 		}
 		odgovor.setJedinice(repoJedinice.findByIzbrisanFalse());
 		odgovor.setTarife(repoTarifa.findAllByOrderBySifraAsc());
-		odgovor.setGrupe(repoGrupa.findByPretplatnikAndIzbrisanFalseOrderByNazivAsc(repoPretplantik.findById(pretplatnikId).get()));
+		DPretplatnik pretplatnik = repoPretplantik.findById(pretplatnikId).get();
+		odgovor.setGrupe(repoGrupa.findByPretplatnikAndIzbrisanFalseOrderByNazivAsc(pretplatnik));
+		odgovor.setKonta(repoKonto.findByPretplatnikOrPretplatnikIsNullAndIzbrisanFalseOrderBySifraAsc(pretplatnik));
 		return odgovor;
 	}
 	
@@ -74,8 +81,8 @@ public class JArtikalService extends OsnovniService{
 	 */
 	@Transactional
 	public ResponseEntity<JArtikalOdgovor> snimiArtikal(JArtikal noviArtikal) {
-		List<JArtikal> postojeci = repo.findByPretplatnikAndSifraAndIzbrisanFalse(noviArtikal.getPretplatnik(), noviArtikal.getSifra());
-		List<JArtikal> postojeci2 = repo.findByPretplatnikAndNazivAndIzbrisanFalse(noviArtikal.getPretplatnik(), noviArtikal.getNaziv());
+		List<JArtikal> postojeci = repo.findByPretplatnikAndIzbrisanFalseAndSifraOrNaziv(noviArtikal.getPretplatnik(),
+				noviArtikal.getSifra(), noviArtikal.getNaziv());
 		Pageable pageable = PageRequest.of(strana(1), brZapisaPoStrani);
 		JArtikalOdgovor odgovor = new JArtikalOdgovor();
 		return repo.findById(noviArtikal.getId() != null ? noviArtikal.getId() : 0L)
@@ -84,14 +91,7 @@ public class JArtikalService extends OsnovniService{
 						Boolean postoji = false;
 						if(postojeci.size() > 0) {
 							for(JArtikal art : postojeci) {
-								if(!art.getId().equals(noviArtikal.getId())) {
-									postoji = true;
-								}
-							}
-						}
-						if(postojeci2.size() > 0) {
-							for(JArtikal art : postojeci2) {
-								if(!art.getId().equals(noviArtikal.getId())) {
+								if(!art.getId().equals(noviArtikal.getId()) && !art.getIzbrisan()) {
 									postoji = true;
 								}
 							}
@@ -100,6 +100,15 @@ public class JArtikalService extends OsnovniService{
 							return new ResponseEntity<JArtikalOdgovor>(odgovor, HttpStatus.ALREADY_REPORTED);
 						}else {
 							if(noviArtikal.getVerzija() == artikal.getVerzija()) {
+								if(noviArtikal.getSifra() == null || noviArtikal.getSifra().equals("")
+										|| noviArtikal.getSifra().isBlank() || noviArtikal.getSifra().isEmpty()) {
+									if(artikal.getSifra() != null && !artikal.getSifra().equals("")
+											&& !artikal.getSifra().isBlank() && !artikal.getSifra().isEmpty()) {
+										noviArtikal.setSifra(artikal.getSifra());
+									}else {
+										postaviBrojac(noviArtikal);
+									}
+								}
 								artikal = noviArtikal;
 								artikal.setVerzija(artikal.getVerzija() + 1);
 								repo.save(artikal);
@@ -110,24 +119,25 @@ public class JArtikalService extends OsnovniService{
 								odgovor.setUkupnoStrana(artikliPoStrani.getTotalPages());
 								return new ResponseEntity<JArtikalOdgovor>(odgovor, HttpStatus.ACCEPTED);
 							}else {
-								return new ResponseEntity<JArtikalOdgovor>(odgovor, HttpStatus.MULTI_STATUS);
+								return new ResponseEntity<JArtikalOdgovor>(HttpStatus.MULTI_STATUS);
 							}
 						}
 					}catch (Exception e) {
 						e.printStackTrace();
-						return new ResponseEntity<JArtikalOdgovor>(odgovor, HttpStatus.INTERNAL_SERVER_ERROR);
+						return new ResponseEntity<JArtikalOdgovor>(HttpStatus.INTERNAL_SERVER_ERROR);
 						}
 				}).orElseGet(() -> {
 					try {
-						if((postojeci != null && postojeci.size() > 0) || (postojeci2 != null && postojeci2.size() > 0)) {
+						if(postojeci != null && postojeci.size() > 0) {
 							return new ResponseEntity<JArtikalOdgovor>(odgovor, HttpStatus.ALREADY_REPORTED);
 						}else {
-							if(noviArtikal.getNaziv() == null || noviArtikal.getNaziv().equals("")) {
+							if(noviArtikal.getNaziv() == null || noviArtikal.getNaziv().equals("") || noviArtikal.getPretplatnik() == null) {
 								return new ResponseEntity<JArtikalOdgovor>(odgovor, HttpStatus.FORBIDDEN);
 							}else {
 								noviArtikal.setVerzija(0);
 								noviArtikal.setIzbrisan(false);
-								if(noviArtikal.getSifra() == null || noviArtikal.getSifra().equals(""))
+								if(noviArtikal.getSifra() == null || noviArtikal.getSifra().equals("")
+										|| noviArtikal.getSifra().isBlank() || noviArtikal.getSifra().isEmpty())
 									postaviBrojac(noviArtikal);
 								repo.save(noviArtikal);
 								Page<JArtikal> artikliPoStrani = repo.pretragaArtikalaPretplatnika(repo.save(noviArtikal).getPretplatnik().getId(), null, noviArtikal.getTip(), pageable);
@@ -156,31 +166,35 @@ public class JArtikalService extends OsnovniService{
 			JArtikalOdgovor odgovor = new JArtikalOdgovor();
 			JArtikal artikal = repo.findById(artikalId).get();
 			Pageable pageable = PageRequest.of(strana(1), brZapisaPoStrani);
-			try {
-				repo.delete(artikal);
-				Page<JArtikal> artikliPoStrani = repo.pretragaArtikalaPretplatnika(artikal.getPretplatnik().getId(), null, null, pageable);
-				odgovor.setArtikli(artikliPoStrani.getContent());
-				odgovor.setTrenutnaStrana(artikliPoStrani.getNumber());
-				odgovor.setUkupnoZapisa(artikliPoStrani.getTotalElements());
-				odgovor.setUkupnoStrana(artikliPoStrani.getTotalPages());
-				return new ResponseEntity<JArtikalOdgovor>(odgovor, HttpStatus.ACCEPTED);
-			}catch (Exception e) {
+			if(artikal != null) {
 				try {
-					artikal.setIzbrisan(true);
-					artikal.setVerzija(artikal.getVerzija() + 1);
-					Page<JArtikal> artikliPoStrani = repo.pretragaArtikalaPretplatnika(repo.save(artikal).getPretplatnik().getId(), null, null, pageable);
+					repo.delete(artikal);
+					Page<JArtikal> artikliPoStrani = repo.pretragaArtikalaPretplatnika(artikal.getPretplatnik().getId(), null, null, pageable);
 					odgovor.setArtikli(artikliPoStrani.getContent());
 					odgovor.setTrenutnaStrana(artikliPoStrani.getNumber());
 					odgovor.setUkupnoZapisa(artikliPoStrani.getTotalElements());
 					odgovor.setUkupnoStrana(artikliPoStrani.getTotalPages());
 					return new ResponseEntity<JArtikalOdgovor>(odgovor, HttpStatus.ACCEPTED);
-				}catch (Exception ee) {
-					ee.printStackTrace();
-					return new ResponseEntity<JArtikalOdgovor>(odgovor, HttpStatus.INTERNAL_SERVER_ERROR);
+				}catch (Exception e) {
+					try {
+						artikal.setIzbrisan(true);
+						artikal.setVerzija(artikal.getVerzija() + 1);
+						Page<JArtikal> artikliPoStrani = repo.pretragaArtikalaPretplatnika(repo.save(artikal).getPretplatnik().getId(), null, null, pageable);
+						odgovor.setArtikli(artikliPoStrani.getContent());
+						odgovor.setTrenutnaStrana(artikliPoStrani.getNumber());
+						odgovor.setUkupnoZapisa(artikliPoStrani.getTotalElements());
+						odgovor.setUkupnoStrana(artikliPoStrani.getTotalPages());
+						return new ResponseEntity<JArtikalOdgovor>(odgovor, HttpStatus.ACCEPTED);
+					}catch (Exception ee) {
+						ee.printStackTrace();
+						return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+					}
 				}
+			}else {
+				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 			}
 		}else {
-			return new ResponseEntity<JArtikalOdgovor>(HttpStatus.FORBIDDEN);
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 		}
 	}
 	

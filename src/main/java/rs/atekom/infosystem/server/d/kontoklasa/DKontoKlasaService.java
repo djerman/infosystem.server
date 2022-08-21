@@ -12,13 +12,13 @@ import rs.atekom.infosystem.server.OsnovniService;
 public class DKontoKlasaService extends OsnovniService{
 
 	@Autowired
-	DKontoKlasaRepo repo;
+	private DKontoKlasaRepo repo;
 	
 	public DKontoKlasaOdgovor lista() {	
 		return new DKontoKlasaOdgovor(repo.findAllByIzbrisanFalseOrderBySifraAsc());
 		}
 	
-	 public DKontoKlasaOdgovor pretraga(Optional<String> pretraga) {
+	public DKontoKlasaOdgovor pretraga(Optional<String> pretraga) {
 		 String pojam = null;
 		 if(pretraga != null && pretraga.isPresent()) {
 			 pojam = pretraga.get();

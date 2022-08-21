@@ -15,11 +15,11 @@ import rs.atekom.infosystem.server.c.mesto.CMestoRepo;
 public class ADrzavaService extends OsnovniService{
 
 	@Autowired
-	ADrzavaRepo repo;
+	private ADrzavaRepo repo;
 	@Autowired
-	BOpstinaRepo repoOpstina;
+	private BOpstinaRepo repoOpstina;
 	@Autowired
-	CMestoRepo repoMesto;
+	private CMestoRepo repoMesto;
 	
 	public ADrzavaOdgovor lista(Optional<String> pretraga) {
 		ADrzavaOdgovor odgovor = new ADrzavaOdgovor();

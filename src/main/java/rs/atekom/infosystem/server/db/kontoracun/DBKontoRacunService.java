@@ -12,7 +12,7 @@ import rs.atekom.infosystem.server.OsnovniService;
 public class DBKontoRacunService extends OsnovniService{
 
 	@Autowired
-	DBKontoRacunRepo repo;
+	private DBKontoRacunRepo repo;
 	
 	public DBKontoRacunOdgovor lista() {
 		return new DBKontoRacunOdgovor(repo.findAllByOrderBySifraAsc());

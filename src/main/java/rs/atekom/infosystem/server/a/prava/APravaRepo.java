@@ -14,7 +14,7 @@ public interface APravaRepo extends PagingAndSortingRepository<APrava, Long>{
 
 	public List<APrava> findByIzbrisanFalse();
 	
-	//pretraga mora biti uskđaena da 'tip' - integer odnosno nivoom prava koje ima onaj koji pretražuje
+	//pretraga mora biti uskđena sa 'tip' - integer odnosno nivoom prava koje ima onaj koji pretražuje
 	@Query("SELECT a FROM APrava AS a"
 			+ " WHERE a.izbrisan='0'"
 			+ " AND (:pretraga IS NULL OR (a.naziv IS NULL OR lower(a.naziv) like lower(concat('%',:pretraga,'%')))"
