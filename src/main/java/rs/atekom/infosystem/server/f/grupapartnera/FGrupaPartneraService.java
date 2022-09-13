@@ -7,12 +7,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import rs.atekom.infosystem.baza.d.pretplatnik.DPretplatnik;
 import rs.atekom.infosystem.baza.f.brojac.FBrojac;
 import rs.atekom.infosystem.baza.f.grupapartnera.FGrupaPartnera;
 import rs.atekom.infosystem.baza.f.grupapartnera.FGrupaPartneraOdgovor;
 import rs.atekom.infosystem.server.OsnovniService;
 import rs.atekom.infosystem.server.a.tipbrojaca.ATipBrojacaRepo;
 import rs.atekom.infosystem.server.d.pretplatnik.DPretplatnikRepo;
+import rs.atekom.infosystem.server.e.konto.EKontoRepo;
 import rs.atekom.infosystem.server.f.brojac.FBrojacRepo;
 
 @Service
@@ -26,10 +28,16 @@ public class FGrupaPartneraService extends OsnovniService{
 	private FBrojacRepo repoBrojac;
 	@Autowired
 	private ATipBrojacaRepo repoTipBrojaca;
+	@Autowired
+	private EKontoRepo repoKonto;
 	
 	public FGrupaPartneraOdgovor lista(Long pretplatnikId) {
 		try {
-			return new FGrupaPartneraOdgovor(repo.findByPretplatnikAndIzbrisanFalseOrderByNazivAsc(repoPretplatnik.findById(pretplatnikId).get()));
+			FGrupaPartneraOdgovor odgovor = new FGrupaPartneraOdgovor();
+			DPretplatnik pretplatnik = repoPretplatnik.findById(pretplatnikId).get();
+			odgovor.setLista(repo.findByPretplatnikAndIzbrisanFalseOrderByNazivAsc(repoPretplatnik.findById(pretplatnikId).get()));
+			odgovor.setKonta(repoKonto.findByPretplatnikOrPretplatnikIsNullAndIzbrisanFalseOrderBySifraAsc(pretplatnik));
+			return odgovor;
 			}catch (Exception e) {
 				e.printStackTrace();
 				return null;

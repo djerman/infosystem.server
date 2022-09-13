@@ -47,7 +47,7 @@ public class JwtAuthenticationController {
 		Matcher n = p.matcher(password);
 		boolean b = m.find();
 		boolean c = n.find();
-		if(!b && !c && username.length() < 15 && password.length() < 12) {
+		if(!b && !c && username.length() <= 15 && password.length() <= 12) {
 			try {
 				authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 				} catch (DisabledException e) {

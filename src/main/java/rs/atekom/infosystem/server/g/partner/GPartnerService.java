@@ -18,6 +18,7 @@ import rs.atekom.infosystem.server.OsnovniService;
 import rs.atekom.infosystem.server.a.tipbrojaca.ATipBrojacaRepo;
 import rs.atekom.infosystem.server.c.mesto.CMestoRepo;
 import rs.atekom.infosystem.server.d.pretplatnik.DPretplatnikRepo;
+import rs.atekom.infosystem.server.e.konto.EKontoRepo;
 import rs.atekom.infosystem.server.f.brojac.FBrojacRepo;
 import rs.atekom.infosystem.server.f.grupapartnera.FGrupaPartneraRepo;
 import rs.atekom.infosystem.server.f.preduzece.FPreduzeceRepo;
@@ -42,6 +43,8 @@ public class GPartnerService extends OsnovniService{
 	private FBrojacRepo repoBrojac;
 	@Autowired
 	private ATipBrojacaRepo repoTipBrojaca;
+	@Autowired
+	private EKontoRepo repoKonto;
 	
 	@Transactional
 	public ResponseEntity<GPartnerOdgovor> snimiPreduzece(GPartnerOdgovorPodaci noviPodaciPartnera, Optional<Boolean> kupac){
@@ -73,6 +76,7 @@ public class GPartnerService extends OsnovniService{
 									partner.setDobavljacRabat(noviPartner.getDobavljacRabat());
 									partner.setPreduzece(noviPartner.getPreduzece());
 									partner.setVerzija(partner.getVerzija() + 1);
+									partner.setJezik(noviPartner.getJezik());
 									//System.out.println("ažuriranje ... " + (partner.getGrupaPartnera() == null ? "nema grupe " : partner.getGrupaPartnera()));
 									partner = repo.save(partner);
 									
@@ -187,6 +191,7 @@ public class GPartnerService extends OsnovniService{
 			odgovor.setListaSaPodacima(listaSaPodacima);
 			odgovor.setGrupe(repoGrupa.findByPretplatnikAndIzbrisanFalseOrderByNazivAsc(repoPretplatnik.findById(pretplatnikId).get()));
 			odgovor.setMesta(repoMesto.findByIzbrisanFalseOrderByNazivAsc());
+			odgovor.setKonta(repoKonto.findByPretplatnikOrPretplatnikIsNullAndIzbrisanFalseOrderBySifraAsc(repoPretplatnik.findById(pretplatnikId).get()));
 			return new ResponseEntity<GPartnerOdgovor>(odgovor, HttpStatus.ACCEPTED);
 			}catch (Exception e) {
 				e.printStackTrace();
