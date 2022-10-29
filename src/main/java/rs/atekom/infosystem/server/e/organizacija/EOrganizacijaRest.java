@@ -48,8 +48,8 @@ public class EOrganizacijaRest extends OsnovniRest{
 		return service.snimi(organizacija);
 	}
 	
-	@PreAuthorize("(hasAuthority('AGENCIJA') && @pretplatnikService.proveraZaAgenciju(authentication.principal.username, #organizacija.getPretplatnik().getId()))"
-			+ " || (hasAuthority('ADMINISTRATOR') && @kontaktService.proveraKorisnika(authentication.principal.username, #organizacija.getPretplatnik().getId()))")
+	@PreAuthorize("(hasAuthority('AGENCIJA') && @pretplatnikService.proveraZaAgenciju(authentication.principal.username, #id))"
+			+ " || (hasAuthority('ADMINISTRATOR') && @kontaktService.proveraKorisnika(authentication.principal.username, #id))")
 	@PutMapping("/organizacija/{id}")
 	public ResponseEntity<EOrganizacijaOdgovor> brisi(@PathVariable Long id){
 		return service.brisi(id);

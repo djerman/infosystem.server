@@ -32,9 +32,8 @@ public class EOrganizacijaService extends OsnovniService{
 		try {
 			String pojam = null;
 			Long pretplatnikId = null;
-			if(pretraga != null && pretraga.isPresent()) {
+			if(pretraga != null && pretraga.isPresent()) 
 				pojam = pretraga.get();
-			}
 			if(pretplId != null && pretplId.isPresent())
 				pretplatnikId = pretplId.get();
 			odgovor.setLista(repo.pretragaOrganizacija(pojam, pretplatnikId));
