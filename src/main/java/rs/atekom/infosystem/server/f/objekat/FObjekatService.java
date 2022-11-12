@@ -10,12 +10,24 @@ import org.springframework.transaction.annotation.Transactional;
 import rs.atekom.infosystem.baza.f.objekat.FObjekat;
 import rs.atekom.infosystem.baza.f.objekat.FObjekatOdgovor;
 import rs.atekom.infosystem.server.OsnovniService;
+import rs.atekom.infosystem.server.c.mesto.CMestoRepo;
+import rs.atekom.infosystem.server.d.pretplatnik.DPretplatnikRepo;
+import rs.atekom.infosystem.server.e.konto.EKontoRepo;
+import rs.atekom.infosystem.server.e.organizacija.EOrganizacijaRepo;
 
 @Service
 public class FObjekatService extends OsnovniService {
 
 	@Autowired
 	private FObjekatRepo repo;
+	@Autowired
+	private CMestoRepo repoMesto;
+	@Autowired
+	private EOrganizacijaRepo repoOrganizacija;
+	@Autowired
+	private DPretplatnikRepo repoPretplatnik;
+	@Autowired
+	private EKontoRepo repoKonto;
 	
 	public FObjekatOdgovor lista(Optional<String> pretraga, Optional<Long> pretplId) {
 		FObjekatOdgovor odgovor = new FObjekatOdgovor();
@@ -27,6 +39,9 @@ public class FObjekatService extends OsnovniService {
 			if(pretplId != null && pretplId.isPresent())
 				pretplatnikId = pretplId.get();
 			odgovor.setLista(repo.pretragaObjekata(pojam, pretplatnikId));
+			odgovor.setMesta(repoMesto.findByIzbrisanFalseOrderByNazivAsc());
+			odgovor.setOrganizacije(repoOrganizacija.findByPretplatnikAndIzbrisanFalse(repoPretplatnik.findById(pretplatnikId).get()));
+			odgovor.setKonta(repoKonto.pretragaPoDeluSifre("13", pretplatnikId));
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -36,7 +51,7 @@ public class FObjekatService extends OsnovniService {
 	@Transactional
 	public ResponseEntity<FObjekatOdgovor> snimi(FObjekat noviObjekat){
 		List<FObjekat> postojeci = repo.findByPretplatnikAndIzbrisanFalseAndNaziv(noviObjekat.getPretplatnik(), noviObjekat.getNaziv());
-		FObjekatOdgovor odgovor = new FObjekatOdgovor();
+		//FObjekatOdgovor odgovor = new FObjekatOdgovor();
 		return repo.findById(noviObjekat.getId() != null ? noviObjekat.getId() : 0L)
 				.map(objekat -> {
 					try {
@@ -49,7 +64,7 @@ public class FObjekatService extends OsnovniService {
 							}
 						}
 						if(postoji) {
-							return new ResponseEntity<FObjekatOdgovor>(odgovor, HttpStatus.ALREADY_REPORTED);
+							return new ResponseEntity<FObjekatOdgovor>(lista(null, Optional.of(noviObjekat.getPretplatnik().getId())), HttpStatus.ALREADY_REPORTED);
 						}else {
 							if(noviObjekat.getVerzija() == objekat.getVerzija()) {
 								objekat = noviObjekat;
@@ -57,10 +72,10 @@ public class FObjekatService extends OsnovniService {
 								if(objekat.getIzbrisan() == null)
 									objekat.setIzbrisan(false);
 								repo.save(objekat);
-								odgovor.setLista(repo.findByPretplatnikAndIzbrisanFalse(objekat.getPretplatnik()));
-								return new ResponseEntity<FObjekatOdgovor>(odgovor, HttpStatus.ACCEPTED);
+								//odgovor.setLista(repo.findByPretplatnikAndIzbrisanFalse(objekat.getPretplatnik()));
+								return new ResponseEntity<FObjekatOdgovor>(lista(null, Optional.of(objekat.getPretplatnik().getId())), HttpStatus.ACCEPTED);
 							}else{
-								return new ResponseEntity<FObjekatOdgovor>(odgovor, HttpStatus.MULTI_STATUS);
+								return new ResponseEntity<FObjekatOdgovor>(new FObjekatOdgovor(), HttpStatus.MULTI_STATUS);
 							}
 						}
 					}catch (Exception e) {
@@ -70,16 +85,16 @@ public class FObjekatService extends OsnovniService {
 				}).orElseGet(() -> {
 					try {
 						if(postojeci != null && postojeci.size() > 0) {
-							return new ResponseEntity<FObjekatOdgovor>(odgovor, HttpStatus.ALREADY_REPORTED);
+							return new ResponseEntity<FObjekatOdgovor>(new FObjekatOdgovor(), HttpStatus.ALREADY_REPORTED);
 						}else {
 							if(noviObjekat.getNaziv() == null || noviObjekat.getNaziv().equals("") || noviObjekat.getPretplatnik() == null) {
-								return new ResponseEntity<FObjekatOdgovor>(odgovor, HttpStatus.FORBIDDEN);
+								return new ResponseEntity<FObjekatOdgovor>(new FObjekatOdgovor(), HttpStatus.FORBIDDEN);
 							}else {
 								noviObjekat.setVerzija(0);
 								noviObjekat.setIzbrisan(false);
 								repo.save(noviObjekat);
-								odgovor.setLista(repo.findByPretplatnikAndIzbrisanFalse(noviObjekat.getPretplatnik()));
-								return new ResponseEntity<FObjekatOdgovor>(odgovor, HttpStatus.ACCEPTED);
+								//odgovor.setLista(repo.findByPretplatnikAndIzbrisanFalse(noviObjekat.getPretplatnik()));
+								return new ResponseEntity<FObjekatOdgovor>(lista(null, Optional.of(noviObjekat.getPretplatnik().getId())), HttpStatus.ACCEPTED);
 							}
 						}
 					}catch (Exception e) {
@@ -91,19 +106,19 @@ public class FObjekatService extends OsnovniService {
 	@Transactional
 	public ResponseEntity<FObjekatOdgovor> brisi(Long objekatId){
 		if(objekatId != null) {
-			FObjekatOdgovor odgovor = new FObjekatOdgovor();
+			//FObjekatOdgovor odgovor = new FObjekatOdgovor();
 			FObjekat objekat = repo.findById(objekatId).get();
 			if(objekat != null) {
 				try {
 					repo.delete(objekat);
-					odgovor.setLista(repo.findByPretplatnikAndIzbrisanFalse(objekat.getPretplatnik()));
-					return new ResponseEntity<FObjekatOdgovor>(odgovor, HttpStatus.ACCEPTED);
+					//odgovor.setLista(repo.findByPretplatnikAndIzbrisanFalse(objekat.getPretplatnik()));
+					return new ResponseEntity<FObjekatOdgovor>(lista(null, Optional.of(objekat.getPretplatnik().getId())), HttpStatus.ACCEPTED);
 				}catch (Exception e) {
 					try {
 						objekat.setIzbrisan(false);
 						repo.save(objekat);
-						odgovor.setLista(repo.findByPretplatnikAndIzbrisanFalse(objekat.getPretplatnik()));
-						return new ResponseEntity<FObjekatOdgovor>(odgovor, HttpStatus.ACCEPTED);
+						//odgovor.setLista(repo.findByPretplatnikAndIzbrisanFalse(objekat.getPretplatnik()));
+						return new ResponseEntity<FObjekatOdgovor>(lista(null, Optional.of(objekat.getPretplatnik().getId())), HttpStatus.ACCEPTED);
 					}catch (Exception ee) {
 						ee.printStackTrace();
 						return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

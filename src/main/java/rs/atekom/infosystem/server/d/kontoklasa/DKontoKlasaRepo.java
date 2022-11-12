@@ -15,13 +15,19 @@ public interface DKontoKlasaRepo extends PagingAndSortingRepository<DKontoKlasa,
 	public List<DKontoKlasa> findAllByIzbrisanFalseOrderBySifraAsc();
 	
 	@Query("SELECT k FROM DKontoKlasa AS k"
-			+ " WHERE k.izbrisan='0'"
+			+ " WHERE k.izbrisan = '0'"
 			+ " AND (:pretraga IS NULL OR (lower(k.naziv) like lower(concat('%',:pretraga,'%'))"
-			+ " OR lower(k.sifra) like lower(concat('%',:pretraga,'%'))"
-			+ " OR lower(k.sr) like lower(concat('%',:pretraga,'%'))"
-			+ " OR lower(k.en) like lower(concat('%',:pretraga,'%'))"
-			+ " OR lower(k.de) like lower(concat('%',:pretraga,'%'))))"
+			+ " OR lower(k.sifra) LIKE lower(concat('%',:pretraga,'%'))"
+			+ " OR lower(k.sr) LIKE lower(concat('%',:pretraga,'%'))"
+			+ " OR lower(k.en) LIKE lower(concat('%',:pretraga,'%'))"
+			+ " OR lower(k.de) LIKE lower(concat('%',:pretraga,'%'))))"
 			+ " ORDER BY k.sifra ASC")
 	public List<DKontoKlasa> pretraga(@Param("pretraga") String pretraga);
+	
+	@Query("SELECT k FROM DKontoKlasa AS k"
+			+ " WHERE k.izbrisan = '0'"
+			+ " AND k.sifra LIKE :sifra"
+			+ " ORDER BY k.sifra ASC")
+	public List<DKontoKlasa> pretragaPoSifri(@Param("sifra") String sifra);
 	
 	}

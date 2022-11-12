@@ -29,4 +29,13 @@ public interface DBKontoRacunRepo extends PagingAndSortingRepository<DBKontoRacu
 			+ ")"
 			+ " ORDER BY r.sifra ASC")
 	public List<DBKontoRacun> pretraga(@Param("pretraga") String pretraga, @Param("grupaId") Long grupaId);
+	
+	@Query("SELECT r FROM DBKontoRacun AS r"
+			+ " WHERE r.izbrisan = '0'"
+			+ " AND (:grupaId IS NULL OR r.grupa.id = :grupaId)"
+			+ " AND r.sifra LIKE :sifra"
+			+ " ORDER BY r.sifra ASC")
+	public List<DBKontoRacun> pretragaPoSifri(@Param("sifra") String sifra, @Param("grupaId") Long grupaId);
+	
+	
 	}

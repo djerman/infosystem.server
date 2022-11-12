@@ -37,4 +37,11 @@ public interface EKontoRepo extends PagingAndSortingRepository<EKonto, Long>{
 			+ " ORDER BY k.sifra ASC")
 	public List<EKonto> pretraga(@Param("pretraga") String pretraga, @Param("podgrupaId") Long podgrupaId, @Param("pretplatnikId") Long pretplatnikId);
 	
+	@Query("SELECT k FROM EKonto AS k"
+			+ " WHERE k.izbrisan = '0'"
+			+ " AND (k.pretplatnik IS NULL OR k.pretplatnik.id = :pretplatnikId)"
+			+ " AND (k.sifra LIKE concat(:sifra,'%'))"
+			+ " ORDER BY k.sifra ASC")
+	public List<EKonto> pretragaPoDeluSifre(@Param("sifra") String sifra, @Param("pretplatnikId") Long pretplatnikId);
+	
 	}
