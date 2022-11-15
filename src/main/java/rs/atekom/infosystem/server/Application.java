@@ -14,7 +14,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories
 @Configuration
 @EnableCaching
-
 public class Application extends SpringBootServletInitializer{
 
 	public static void main(String[] args) {
@@ -23,9 +22,7 @@ public class Application extends SpringBootServletInitializer{
 	
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(applicationClass);
+        return application.sources(Application.class);
     }
     
-    private static Class<Application> applicationClass = Application.class;
-    
-	}
+}
